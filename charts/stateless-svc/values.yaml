@@ -115,13 +115,13 @@ httpRoute:
 configMap:
   enabled: false
   data: {}
-    # my-key: my-value
+  # my-key: my-value
 
 # This is for creating a Secret more information can be found here: https://kubernetes.io/docs/concepts/configuration/secret/
 secret:
   enabled: false
   stringData: {}
-    # my-key: my-value
+  # my-key: my-value
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

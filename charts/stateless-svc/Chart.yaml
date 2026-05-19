@@ -22,3 +22,7 @@ version: 0.2.0
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: "latest"
+
+maintainers:
+  - name: nehan-p
+    url: https://github.com/nehan-p
