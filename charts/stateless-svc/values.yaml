@@ -111,6 +111,18 @@ httpRoute:
   #     - name: version
   #       value: v2
 
+# This is for creating a ConfigMap more information can be found here: https://kubernetes.io/docs/concepts/configuration/configmap/
+configMap:
+  enabled: false
+  data: {}
+    # my-key: my-value
+
+# This is for creating a Secret more information can be found here: https://kubernetes.io/docs/concepts/configuration/secret/
+secret:
+  enabled: false
+  stringData: {}
+    # my-key: my-value
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -155,8 +167,36 @@ volumeMounts: []
   #   mountPath: "/etc/foo"
   #   readOnly: true
 
+# Additional environment variables on the output Deployment definition.
+env: []
+  # - name: MY_VAR
+  #   value: "my-value"
+  # - name: MY_SECRET_VAR
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+# Additional manifests to deploy alongside the service e.g. ExternalSecret
+extraManifests: []
+  # - apiVersion: external-secrets.io/v1beta1
+  #   kind: ExternalSecret
+  #   metadata:
+  #     name: my-secret
+  #   spec:
+  #     refreshInterval: 1h
+  #     secretStoreRef:
+  #       name: vault-backend
+  #       kind: SecretStore
+  #     target:
+  #       name: my-k8s-secret
+  #     data:
+  #       - secretKey: my-key
+  #         remoteRef:
+  #           key: my-vault-secret
