@@ -1,0 +1,13 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: katsu-db
+spec:
+  instances: 1
+  # PostGIS-enabled image required by Katsu for geographic data support
+  imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-system-trixie
+  # Required locally so Katsu can create the PostGIS extension on first run
+  # TODO: figure out a non-superuser approach for production
+  enableSuperuserAccess: true
+  storage:
+    size: 1Gi
