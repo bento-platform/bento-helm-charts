@@ -3,19 +3,35 @@ image:
   tag: "13.2.0"
 
 service:
-  port: 5000
+  port: 8000
 
-# TODO: add liveness and readiness probes
-#livenessProbe:
-#  httpGet:
-#    path: /service-info
-#    port: http
-#readinessProbe:
-#  httpGet:
-#    path: /service-info
-#    port: http
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
 
 env:
+  - name: ALLOWED_HOSTS
+    value: "*"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
@@ -23,10 +39,6 @@ env:
         key: host
   - name: POSTGRES_DATABASE
     value: app
-#    valueFrom:
-#      secretKeyRef:
-#        name: katsu-db-superuser
-#        key: dbname
   - name: POSTGRES_USER
     valueFrom:
       secretKeyRef:

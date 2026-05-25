@@ -11,3 +11,4 @@ spec:
   enableSuperuserAccess: true
   storage:
     size: 1Gi
+    

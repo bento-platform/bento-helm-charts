@@ -145,6 +145,12 @@ readinessProbe:
     # TODO: test using GA4GH /service-info as readiness probe, most of our services have it
     path: /
     port: http
+startupProbe:
+  httpGet:
+    path: /
+    port: http
+  failureThreshold: 30
+  periodSeconds: 5
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
