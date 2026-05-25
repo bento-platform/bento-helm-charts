@@ -40,9 +40,17 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.env }}
+          {{- if .Values.env }}
           env:
-            {{- toYaml . | nindent 12 }}
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              {{- if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- else }}
+              value: {{ .value | quote }}
+              {{- end }}
+            {{- end }}
           {{- end }}
           ports:
             - name: http
@@ -54,6 +62,10 @@ spec:
           {{- end }}
           {{- with .Values.readinessProbe }}
           readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.resources }}
@@ -80,3 +92,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      
