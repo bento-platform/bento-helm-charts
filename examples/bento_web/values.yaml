@@ -1,0 +1,41 @@
+image:
+  repository: ghcr.io/bento-platform/bento_web
+  tag: "7.4.0"
+
+service:
+  port: 80
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+  failureThreshold: 30
+  periodSeconds: 5
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: BENTO_CBIOPORTAL_ENABLED
+    value: "false"
+  - name: BENTO_MONITORING_ENABLED
+    value: "false"
+  - name: BENTO_CBIOPORTAL_PUBLIC_URL
+    value: "http://dummy"
+  - name: BENTO_URL
+    value: "http://dummy"
+  - name: BENTO_PUBLIC_URL
+    value: "http://dummy"
+  - name: CUSTOM_HEADER
+    value: ""
+  - name: OPENID_CONFIG_URL
+    value: "http://dummy"
+  - name: CLIENT_ID
+    value: "local_bentov2"
