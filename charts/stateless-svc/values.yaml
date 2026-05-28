@@ -115,7 +115,7 @@ httpRoute:
 configMap:
   enabled: false
   data: {}
-  # my-key: my-value
+  binaryData: {}
 
 # This is for creating a Secret more information can be found here: https://kubernetes.io/docs/concepts/configuration/secret/
 secret:
