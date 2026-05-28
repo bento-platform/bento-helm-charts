@@ -67,6 +67,17 @@ volumes:
     emptyDir: {}
   - name: about-pages
     emptyDir: {}
+  - name: config-icons
+    configMap:
+      # CAUTION: ConfigMap name == Helm {Release.Name}-stateless-svc
+      name: bento-public-stateless-svc
+      items:
+        - key: branding.png
+          path: branding.png
+        - key: branding.lightbg.png
+          path: branding.lightbg.png
+        - key: icon_small.png
+          path: icon_small.png
 
 volumeMounts:
   - name: translations
