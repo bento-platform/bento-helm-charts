@@ -73,3 +73,5 @@ volumeMounts:
     mountPath: /bento-public/dist/public/locales
   - name: about-pages
     mountPath: /bento-public/dist/public
+  - name: config-icons
+    mountPath: /bento-public/dist/public/assets
