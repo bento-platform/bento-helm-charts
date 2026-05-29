@@ -31,11 +31,6 @@ helm uninstall bento-public
 
 - bento_public runs on port 5000 internally, so port-forwarding uses `5001:5000`.
 - Environment variable values are set to dummies — replace with real URLs for a live deployment.
-- Translation files and about pages are mounted as EmptyDir volumes. The app will start
-  but may not display translations or about page content in this configuration.
-- Branding images (PNG) are stored as `binaryData` in a ConfigMap and mounted into the
-  container at `/bento-public/dist/public/assets`. This approach works for development
-  given the small file sizes, but is not recommended for production due to ConfigMap's
-  1 MiB size limit. The long-term solution is to serve static assets from an S3 bucket.
-- The `stateless-svc` chart was extended with `binaryData` support in the ConfigMap
-  template to support this deployment.
+- Translation files (`translation_en.json`, `translation_fr.json`) and about pages (`en_about.html`, `fr_about.html`) are stored as text data in a ConfigMap and mounted into the container at their expected paths using `subPath`.
+- Branding images (PNG) are stored as `binaryData` in the same ConfigMap and mounted into the container at `/bento-public/dist/public/assets`. This approach works for development given the small file sizes, but is not recommended for production due to ConfigMap's 1 MiB size limit. The long-term solution is to serve static assets from an S3 bucket.
+- The `stateless-svc` chart was extended with `binaryData` support in the ConfigMap template to support this deployment.
