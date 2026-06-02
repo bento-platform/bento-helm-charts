@@ -57,16 +57,16 @@ kubectl apply -f drop-box-bucket-key.yaml
 Port-forward the S3 endpoint and validate using the AWS CLI (`brew install awscli`):
 
 ```bash
-kubectl port-forward svc/garage 3900:3900 -n garage-operator-system
+kubectl port-forward svc/garage 3900:3900
 ```
 
 In a new terminal:
 
 ```bash
 export AWS_DEFAULT_REGION=garage
-export AWS_ACCESS_KEY_ID=$(kubectl get secret drs-key -n garage-operator-system \
+export AWS_ACCESS_KEY_ID=$(kubectl get secret drs-key \
   -o jsonpath='{.data.access-key-id}' | base64 -d)
-export AWS_SECRET_ACCESS_KEY=$(kubectl get secret drs-key -n garage-operator-system \
+export AWS_SECRET_ACCESS_KEY=$(kubectl get secret drs-key \
   -o jsonpath='{.data.secret-access-key}' | base64 -d)
 
 aws s3 ls --endpoint-url http://localhost:3900
@@ -82,6 +82,6 @@ kubectl delete -f drop-box-bucket-key.yaml
 kubectl delete -f drs-bucket.yaml
 kubectl delete -f drop-box-bucket.yaml
 kubectl delete -f garage-cluster.yaml
-helm uninstall garage-operator -n garage-operator-system
+helm uninstall garage-operator
 kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
 ```
