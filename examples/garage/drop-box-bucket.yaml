@@ -1,0 +1,10 @@
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageBucket
+metadata:
+  name: drop-box
+  namespace: garage-operator-system
+spec:
+  clusterRef:
+    name: garage
+  quotas:
+    maxSize: 10Gi
