@@ -9,4 +9,8 @@ metadata:
 data:
   {{- toYaml . | nindent 2 }}
 {{- end }}
+{{- with .Values.configMap.binaryData }}
+binaryData:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
 {{- end }}
