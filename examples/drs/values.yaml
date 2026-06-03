@@ -1,0 +1,91 @@
+image:
+  repository: ghcr.io/bento-platform/bento_drs
+  tag: "0.21.3"
+
+service:
+  port: 5000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+volumes:
+  - name: drs-data
+    emptyDir: {}
+  - name: drs-tmp
+    emptyDir: {}
+
+volumeMounts:
+  - name: drs-data
+    mountPath: /drs/bento_drs/data
+  - name: drs-tmp
+    mountPath: /drs/tmp
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: FLASK_DEBUG
+    value: "false"
+  - name: BENTO_DRS_CONTAINER_DATA_VOLUME_DIR
+    value: "/drs/bento_drs/data"
+  - name: DATABASE
+    value: "/drs/bento_drs/data/db/"
+  - name: SERVICE_BASE_URL
+    value: "http://dummy"
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: DRS_INGEST_TMP_DIR 
+    value: "/drs/tmp"
+  - name: CORS_ORIGINS
+    value: "*"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://dummy"
+  - name: SERVICE_URL_BASE_PATH
+    value: "http://dummy"
+  - name: OPENID_CONFIG_URL
+    value: "http://dummy"
+  - name: S3_ENDPOINT
+    value: "http://garage.garage-operator-system.svc.cluster.local:3900"
+  - name: S3_USE_HTTPS
+    value: "false"
+  - name: S3_BUCKET
+    value: "drs"
+  - name: S3_REGION_NAME
+    value: "garage"
+  - name: S3_VALIDATE_SSL
+    value: "false"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: AUTHZ_ENABLED
+    value: "false"
+
+  - name: S3_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: access-key-id
+  - name: S3_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: secret-access-key
