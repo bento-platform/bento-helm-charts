@@ -30,8 +30,7 @@ helm install garage-operator oci://ghcr.io/rajsinghtech/charts/garage-operator \
 
 ```bash
 kubectl create secret generic garage-admin-token \
-  --from-literal=admin-token=$(openssl rand -hex 32) \
-  --namespace garage-operator-system
+  --from-literal=admin-token=$(openssl rand -hex 32)
 ```
 
 ### 4. Deploy the Garage cluster
@@ -39,17 +38,13 @@ kubectl create secret generic garage-admin-token \
 ```bash
 kubectl apply -f garage-cluster.yaml
 kubectl wait --for=condition=Ready garagecluster/garage \
-  --namespace garage-operator-system \
   --timeout=300s
 ```
 
 ### 5. Create buckets and access keys
 
 ```bash
-kubectl apply -f drs-bucket.yaml
-kubectl apply -f drop-box-bucket.yaml
-kubectl apply -f drs-bucket-key.yaml
-kubectl apply -f drop-box-bucket-key.yaml
+kubectl apply -f .
 ```
 
 ## Validation
@@ -77,11 +72,7 @@ You should see the `drs` bucket listed.
 ## Teardown
 
 ```bash
-kubectl delete -f drs-bucket-key.yaml
-kubectl delete -f drop-box-bucket-key.yaml
-kubectl delete -f drs-bucket.yaml
-kubectl delete -f drop-box-bucket.yaml
-kubectl delete -f garage-cluster.yaml
-helm uninstall garage-operator
+kubectl delete -f .
+helm uninstall garage-operator --namespace garage-operator-system
 kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
 ```
