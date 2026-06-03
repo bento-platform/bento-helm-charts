@@ -43,7 +43,7 @@ env:
   - name: OPENID_CONFIG_URL
     value: "http://dummy"
   - name: S3_ENDPOINT
-    value: "http://garage.garage-operator-system.svc.cluster.local:3900"
+    value: "garage.default.svc.cluster.local:3900"
   - name: S3_BUCKET
     value: "drop-box"
   - name: S3_REGION_NAME
@@ -54,6 +54,8 @@ env:
     value: "false"
   - name: LOG_LEVEL
     value: "info"
+  - name: BENTO_AUTHZ_ENABLED
+    value: "false"
 
   - name: S3_ACCESS_KEY
     valueFrom:
