@@ -1,0 +1,69 @@
+image:
+  repository: ghcr.io/bento-platform/bento_drop_box_service
+  tag: "2.1.4"
+
+service:
+  port: 5000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: BENTO_DEBUG
+    value: "false"
+  - name: SERVICE_URL_BASE_PATH
+    value: "http://dummy"
+  - name: CORS_ORIGINS
+    value: "http://dummy"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://dummy"
+  - name: OPENID_CONFIG_URL
+    value: "http://dummy"
+  - name: S3_ENDPOINT
+    value: "garage.default.svc.cluster.local:3900"
+  - name: S3_BUCKET
+    value: "drop-box"
+  - name: S3_REGION_NAME
+    value: "garage"
+  - name: S3_USE_HTTPS
+    value: "false"
+  - name: S3_VALIDATE_SSL
+    value: "false"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: BENTO_AUTHZ_ENABLED
+    value: "false"
+
+  - name: S3_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drop-box-key
+        key: access-key-id
+  - name: S3_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drop-box-key
+        key: secret-access-key
