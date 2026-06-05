@@ -38,9 +38,15 @@ In a separate terminal, port-forward the Garage S3 endpoint:
 kubectl port-forward svc/garage 3900:3900
 ```
 
-Then upload a file and verify:
+Then set S3 credentials and upload a file:
 
 ```bash
+export AWS_DEFAULT_REGION=garage
+export AWS_ACCESS_KEY_ID=$(kubectl get secret drop-box-key \
+  -o jsonpath='{.data.access-key-id}' | base64 -d)
+export AWS_SECRET_ACCESS_KEY=$(kubectl get secret drop-box-key \
+  -o jsonpath='{.data.secret-access-key}' | base64 -d)
+
 # Upload a file to the drop-box S3 bucket
 aws s3 cp --endpoint-url http://localhost:3900 README.md s3://drop-box
 
