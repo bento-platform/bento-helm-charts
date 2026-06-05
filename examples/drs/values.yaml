@@ -65,7 +65,7 @@ env:
   - name: OPENID_CONFIG_URL
     value: "http://dummy"
   - name: S3_ENDPOINT
-    value: "http://garage.garage-operator-system.svc.cluster.local:3900"
+    value: "garage.default.svc.cluster.local:3900"
   - name: S3_USE_HTTPS
     value: "false"
   - name: S3_BUCKET
