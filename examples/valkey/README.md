@@ -26,16 +26,13 @@ helm repo update
 Install the chart:
 
 ```bash
-helm install valkey valkey/valkey \
-  --namespace valkey \
-  --create-namespace \
-  -f values.yaml
+helm install valkey valkey/valkey -f values.yaml
 ```
 
 Wait for the pod to be ready:
 
 ```bash
-kubectl get pods -n valkey -w
+kubectl get pods -w
 ```
 
 ## Verify
@@ -43,8 +40,8 @@ kubectl get pods -n valkey -w
 Once the pod is `Running`, confirm Valkey is responding:
 
 ```bash
-kubectl exec -n valkey \
-  $(kubectl get pod -n valkey -l app.kubernetes.io/name=valkey -o jsonpath='{.items[0].metadata.name}') \
+kubectl exec \
+  $(kubectl get pod -l app.kubernetes.io/name=valkey -o jsonpath='{.items[0].metadata.name}') \
   -c valkey -- valkey-cli ping
 ```
 
@@ -59,12 +56,11 @@ PONG
 Other services in the cluster can reach Valkey at:
 
 ```
-valkey.valkey.svc.cluster.local:6379
+valkey.default.svc.cluster.local:6379
 ```
 
 ## Teardown
 
 ```bash
-helm uninstall valkey -n valkey
-kubectl delete namespace valkey
+helm uninstall valkey
 ```
