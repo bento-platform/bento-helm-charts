@@ -29,15 +29,16 @@ startupProbe:
   failureThreshold: 30
   periodSeconds: 5
 
+persistence:
+  enabled: true
+  mountPath: /drs/bento_drs/data
+  size: 1Gi
+
 volumes:
-  - name: drs-data
-    emptyDir: {}
   - name: drs-tmp
     emptyDir: {}
 
 volumeMounts:
-  - name: drs-data
-    mountPath: /drs/bento_drs/data
   - name: drs-tmp
     mountPath: /drs/tmp
 

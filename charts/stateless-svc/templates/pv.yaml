@@ -1,0 +1,16 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "stateless-svc.fullname" . }}
+  labels:
+    {{- include "stateless-svc.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.persistence.storageClassName }}
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  accessModes:
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
+  hostPath:
+    path: /mnt/data/{{ include "stateless-svc.fullname" . }}
+{{- end }}
