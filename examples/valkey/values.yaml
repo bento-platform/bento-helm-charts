@@ -1,0 +1,8 @@
+auth:
+  enabled: false
+
+replica:
+  enabled: false
+
+dataStorage:
+  enabled: false
