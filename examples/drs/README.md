@@ -77,7 +77,6 @@ Expected output: `[(1,)]`
 
 ```bash
 helm uninstall drs
-kubectl delete pvc drs-stateless-svc
 ```
 
 ## Notes
