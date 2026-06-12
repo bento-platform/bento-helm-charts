@@ -3,6 +3,19 @@ entries:
   stateless-svc:
   - apiVersion: v2
     appVersion: latest
+    created: "2026-06-12T14:32:58.728114294Z"
+    description: A generic Helm chart for stateless bento services on Kubernetes
+    digest: 9260adef116242411655a396001271e66a651f38b0acaa6d23e9904439708b0f
+    maintainers:
+    - name: nehan-p
+      url: https://github.com/nehan-p
+    name: stateless-svc
+    type: application
+    urls:
+    - https://github.com/bento-platform/bento-helm-charts/releases/download/stateless-svc-0.5.0/stateless-svc-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2026-06-02T18:41:15.170812308Z"
     description: A generic Helm chart for stateless bento services on Kubernetes
     digest: 25662c00e2617214271265bc857bf0de3f60f032be02b8f2e67fa4ad314545bc
@@ -50,4 +63,4 @@ entries:
     urls:
     - https://github.com/bento-platform/bento-helm-charts/releases/download/stateless-svc-0.1.0/stateless-svc-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-02T18:41:15.170829119Z"
+generated: "2026-06-12T14:32:58.728132101Z"
