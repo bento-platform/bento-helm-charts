@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: reference-db
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: reference
+      owner: reference
+  storage:
+    size: 1Gi

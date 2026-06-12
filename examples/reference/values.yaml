@@ -1,0 +1,58 @@
+image:
+  repository: ghcr.io/bento-platform/bento_reference_service
+  tag: "0.7.3"
+
+service:
+  port: 5000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+volumes:
+  - name: reference-tmp
+    emptyDir: {}
+volumeMounts:
+  - name: reference-tmp
+    mountPath: /reference/tmp
+
+env:
+  - name: BENTO_DEBUG
+    value: "False"
+  - name: DATABASE_URI
+    valueFrom:
+      secretKeyRef:
+        name: reference-db-app
+        key: uri
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: SERVICE_URL_BASE_PATH
+    value: "/api/reference"
+  - name: CORS_ORIGINS
+    value: "*"
+  - name: BENTO_AUTHZ_ENABLED
+    value: "False"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc:5000"
+  - name: FILE_INGEST_TMP_DIR
+    value: /reference/tmp
