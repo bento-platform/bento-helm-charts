@@ -1,0 +1,50 @@
+image:
+  repository: ghcr.io/bento-platform/bento_event_relay
+  tag: "3.1.10"
+
+service:
+  port: 5000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+    - name: Host
+      value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+env:
+  - name: BENTO_DEBUG
+    value: "false"
+  - name: NODE_ENV
+    value: "production"
+  - name: JSON_MESSAGES
+    value: "true"
+  - name: SOCKET_IO_PATH
+    value: "/socket.io/"
+  - name: CORS_ORIGINS
+    value: "http://localhost:5000;http://localhost:5001"
+  - name: REDIS_CONNECTION
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: REDIS_SUBSCRIBE_PATTERN
+    value: "bento.*"
+  - name: SERVICE_LISTEN_ON
+    value: "5000"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://bentov2-auth.bentov2.svc.cluster.local:8080"
