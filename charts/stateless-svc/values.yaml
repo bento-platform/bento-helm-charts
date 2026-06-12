@@ -189,6 +189,14 @@ tolerations: []
 
 affinity: {}
 
+persistence:
+  enabled: false
+  mountPath: ""
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
 # Additional manifests to deploy alongside the service e.g. ExternalSecret
 extraManifests: []
   # - apiVersion: external-secrets.io/v1beta1
