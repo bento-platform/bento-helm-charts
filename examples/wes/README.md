@@ -36,11 +36,9 @@ curl http://localhost:5000/service-info
 
 ```bash
 helm uninstall wes
-kubectl delete pvc wes-stateless-svc
 ```
 
 ## Notes
 
 - `BENTO_AUTHZ_ENABLED=False` disables authorization checks. This is for development only and should not be used in production.
 - Probes include a `Host: localhost` header because uvicorn rejects health checks where the pod IP is sent as the Host header by kubelet.
-- The PVC (`wes-stateless-svc`) is not removed on `helm uninstall` and must be deleted manually.
