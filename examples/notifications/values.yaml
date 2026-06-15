@@ -9,21 +9,25 @@ livenessProbe:
   httpGet:
     path: /service-info
     port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
 readinessProbe:
   httpGet:
     path: /service-info
     port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
 startupProbe:
   httpGet:
     path: /service-info
     port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
   failureThreshold: 30
   periodSeconds: 5
-
-persistence:
-  enabled: true
-  size: 1Gi
-  mountPath: /notification/data
 
 env:
   - name: BENTO_UID
@@ -33,7 +37,7 @@ env:
   - name: DATABASE
     value: /notification/data
   - name: REDIS_HOST
-    value: valkey-primary
+    value: valkey-primary.default.svc.cluster.local
   - name: REDIS_PORT
     value: "6379"
   - name: INTERNAL_PORT
