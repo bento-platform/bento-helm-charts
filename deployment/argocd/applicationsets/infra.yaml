@@ -23,6 +23,9 @@ spec:
     metadata:
       name: infra-{{.path.basename}}
       namespace: argocd
+      annotations:
+        argocd.argoproj.io/kustomize-build-options: "--enable-helm"
+
     spec:
       project: default
       source:
