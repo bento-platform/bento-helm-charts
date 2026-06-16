@@ -21,7 +21,7 @@ spec:
           - path: deployment/infra/*
   template:
     metadata:
-      name: infra-{{path.basename}}
+      name: infra-{{.path.basename}}
       namespace: argocd
     spec:
       project: default
