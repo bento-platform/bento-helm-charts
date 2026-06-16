@@ -5,13 +5,20 @@ metadata:
   name: infrastructure
   namespace: argocd
 spec:
+  # Allows the toggling of auto-sync on generated Applications
+  # while keeping track of SyncOptions like: CreateNamespace and ServerSideApply
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy/automated
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
         # TODO: set to HEAD before merge
         revision: 21-madr-deployment-structure
         directories:
-          - path: deployment/infra/
+          - path: deployment/infra/*
   template:
     metadata:
       name: infra-{{path.basename}}
