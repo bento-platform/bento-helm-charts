@@ -9,7 +9,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: infra
+  project: default
   source:
     chart: cert-manager
     repoURL: https://charts.jetstack.io

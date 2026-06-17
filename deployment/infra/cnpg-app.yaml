@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/part-of: infra
 
 spec:
-  project: infra
+  project: default
   source:
     chart: cloudnative-pg
     repoURL: https://cloudnative-pg.github.io/charts
