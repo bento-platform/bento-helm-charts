@@ -4,10 +4,5 @@ kind: Kustomization
 
 namespace: envoy-gateway
 
-helmCharts:
-  - name: gateway-helm
-    includeCRDs: true
-    valuesFile: values.yaml
-    version: v1.8.1
-    repo: docker.io/envoyproxy
-    releaseName: envoy-gateway
+resources:
+  - https://github.com/envoyproxy/gateway/releases/download/v1.8.1/install.yaml
