@@ -1,0 +1,13 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: envoy-gateway
+
+helmCharts:
+  - name: gateway-helm
+    includeCRDs: true
+    valuesFile: values.yaml
+    version: v1.8.1
+    repo: docker.io/envoyproxy
+    releaseName: envoy-gateway
