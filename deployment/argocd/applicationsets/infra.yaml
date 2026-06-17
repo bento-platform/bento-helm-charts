@@ -1,49 +1,32 @@
 ---
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: infrastructure
-  namespace: argocd
-spec:
-  # Allows the toggling of auto-sync on generated Applications
-  # while keeping track of SyncOptions like: CreateNamespace and ServerSideApply
-  ignoreApplicationDifferences:
-    - jsonPointers:
-        - /spec/syncPolicy/automated
-  goTemplate: true
-  goTemplateOptions: ["missingkey=error"]
-  generators:
-    - git:
-        repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        # TODO: set to HEAD before merge
-        revision: 21-madr-deployment-structure
-        directories:
-          - path: deployment/infra/*
-  template:
-    metadata:
-      name: infra-{{.path.basename}}
-      namespace: argocd
-      annotations:
-        argocd.argoproj.io/kustomize-build-options: "--enable-helm"
+kind: Application
 
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        # TODO: set to HEAD before merge
-        targetRevision: 21-madr-deployment-structure
-        path: "{{.path.path}}"
-      destination:
-        server: https://kubernetes.default.svc
-        # e.g. for dir "infra/cert-manager", the resources will be deployed in
-        # namespace "cert-manager"
-        namespace: "{{.path.basename}}"
-      syncPolicy:
-        automated:
-          enabled: true
-          selfHeal: true
-          prune: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-          - PruneLast=true
+metadata:
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  name: infra-addons
+  namespace: argocd
+
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+
+  project: default
+
+  source:
+    path: deployment/infra/
+    repoURL: https://github.com/bento-platform/bento-helm-charts.git
+    # TODO: change to HEAD when ready to merge
+    targetRevision: 21-madr-deployment-structure
+
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true

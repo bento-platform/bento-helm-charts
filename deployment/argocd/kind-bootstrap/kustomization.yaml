@@ -6,5 +6,6 @@ namespace: argocd
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-patches:
-  - path: argocd-cm-patch.yaml
+# Optional to render Helm charts with Kustomize
+# patches:
+#   - path: argocd-cm-patch.yaml
