@@ -7,5 +7,7 @@ namespace: argocd
 # App-of-apps pattern
 resources:
   - cert-manager-app.yaml
-  - envoy-gateway-app.yaml
   - cnpg-app.yaml
+  # - envoy-gateway-app.yaml
+  # - garage-operator-app.yaml
+  # - keycloak-operator-app.yaml
