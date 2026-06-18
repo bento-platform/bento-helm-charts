@@ -5,12 +5,12 @@ metadata:
   name: gateway
   namespace: gateway-infra
   annotations:
-    cert-manager.io/issuer: dev-ca-issuer
+    cert-manager.io/cluster-issuer: dev-ca-issuer
 spec:
   gatewayClassName: cloud-provider-kind
   listeners:
     - name: default
-      hostname: "*.exampledomain.example"
+      hostname: "*.bento.k8s.local"
       port: 443
       protocol: HTTPS
       allowedRoutes:
@@ -19,4 +19,4 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:
-          - name: "exampledomain-example-tls"
+          - name: "bento-k8s-local-tls"

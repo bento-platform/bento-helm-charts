@@ -1,0 +1,7 @@
+---
+global:
+  domain: argocd.bento.k8s.local
+
+configs:
+  params:
+    server.insecure: true

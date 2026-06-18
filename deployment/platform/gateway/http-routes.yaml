@@ -8,7 +8,7 @@ spec:
   parentRefs:
     - name: gateway
       namespace: gateway-infra
-  hostnames: ["argocd.exampledomain.example"]
+  hostnames: ["argocd.bento.k8s.local"]
   rules:
     - matches:
         - path:

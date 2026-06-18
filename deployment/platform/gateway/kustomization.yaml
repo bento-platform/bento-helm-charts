@@ -5,4 +5,3 @@ kind: Kustomization
 resources:
   - gateway.yaml
   - http-routes.yaml
-  - dummy-svc.yaml
