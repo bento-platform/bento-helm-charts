@@ -1,0 +1,86 @@
+image:
+  repository: ghcr.io/bento-platform/bento_wes
+  tag: "0.16.6"
+
+service:
+  port: 5000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+persistence:
+  enabled: true
+  mountPath: /wes/data
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+volumes:
+  - name: wes-tmp
+    emptyDir: {}
+
+volumeMounts:
+  - name: wes-tmp
+    mountPath: /wes/tmp
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: BENTO_URL
+    value: "http://dummy"
+  - name: CELERY_RESULT_BACKEND
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: CELERY_BROKER_URL
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: BENTO_EVENT_REDIS_URL
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: CELERY_DEBUG
+    value: "false"
+  - name: SERVICE_ID
+    value: ""
+  - name: SERVICE_DATA
+    value: "/wes/data"
+  - name: DATABASE
+    value: "/wes/data/bento_wes.db"
+  - name: SERVICE_TEMP
+    value: "/wes/tmp"
+  - name: SERVICE_BASE_URL
+    value: "http://dummy"
+  - name: WOM_TOOL_LOCATION
+    value: "/womtool.jar"
+  - name: WORKFLOW_HOST_ALLOW_LIST
+    value: ""
+  - name: SERVICE_REGISTRY_URL
+    value: "http://dummy"
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: WORKFLOW_TIMEOUT
+    value: "300"
+  - name: CORS_ORIGINS
+    value: "*"
+  - name: BENTO_AUTHZ_ENABLED
+    value: "False"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://dummy"
