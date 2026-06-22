@@ -1,4 +1,4 @@
-export GW_ADDR=$(kubectl get gateway -n gateway-infra gateway -o jsonpath='{.status.addresses[0].value}')
+export GW_ADDR=$(kubectl get gateway -n gateway gateway -o jsonpath='{.status.addresses[0].value}')
 
 echo "Local k8s Gateway exposed on ${GW_ADDR} ."
 echo ""

@@ -19,4 +19,6 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:
-          - name: "bento-k8s-local-tls"
+          - group: ''
+            kind: Secret
+            name: "bento-k8s-local-tls"
