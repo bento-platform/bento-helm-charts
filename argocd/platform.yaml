@@ -23,7 +23,7 @@ spec:
     metadata:
       name: "{{.path.basename}}-resources"
     spec:
-      project: "infra"
+      project: "default"
       source:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
         # TODO: change to HEAD when ready to merge
