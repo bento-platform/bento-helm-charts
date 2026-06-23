@@ -39,9 +39,9 @@ env:
   - name: SOCKET_IO_PATH
     value: "/socket.io/"
   - name: CORS_ORIGINS
-    value: "http://localhost:5000;http://localhost:5001"
+    value: "*"
   - name: REDIS_CONNECTION
-    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+    value: "redis://valkey.default.svc.cluster.local:6379"
   - name: REDIS_SUBSCRIBE_PATTERN
     value: "bento.*"
   - name: SERVICE_LISTEN_ON

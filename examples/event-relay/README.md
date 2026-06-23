@@ -8,21 +8,21 @@ The Event Relay subscribes to Redis (Valkey) PubSub events and relays them to fr
 
 - A running Kubernetes cluster (e.g. minikube or kind)
 - The `stateless-svc` Helm chart available locally (`charts/stateless-svc`)
-- A Valkey deployment running in the `default` namespace (see `examples/valkey`), reachable at `valkey-primary.default.svc.cluster.local:6379`
+- A Valkey deployment running in the `default` namespace (see `examples/valkey`), reachable at `valkey.default.svc.cluster.local:6379`
 
 ## Deploy
 
 From the root of the repo:
 
 ```bash
-helm install notifications charts/stateless-svc -f examples/notifications/values.yaml
+helm install event-relay charts/stateless-svc -f examples/event-relay/values.yaml
 ```
 
 Check that the pod comes up healthy:
 
 ```bash
-kubectl get pods -l app.kubernetes.io/instance=notifications
-kubectl logs -l app.kubernetes.io/instance=notifications
+kubectl get pods -l app.kubernetes.io/instance=event-relay
+kubectl logs -l app.kubernetes.io/instance=event-relay
 ```
 
 You should see the service log its config on startup and report:
@@ -36,7 +36,7 @@ bento_event_relay listening on 5000
 1. Port-forward the service:
 
    ```bash
-   kubectl port-forward svc/notifications-stateless-svc 5000:5000
+   kubectl port-forward svc/event-relay-stateless-svc 5000:5000
    ```
 
 2. Check the service info endpoint:
@@ -50,10 +50,5 @@ bento_event_relay listening on 5000
 ## Teardown
 
 ```bash
-helm uninstall notifications
+helm uninstall event-relay
 ```
-
-## Notes
-
-- `CORS_ORIGINS` is set to placeholder values; in a real deployment this should point to the actual `bento_web` and `bento_public` URLs.
-
