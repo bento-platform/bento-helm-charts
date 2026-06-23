@@ -37,7 +37,7 @@ env:
   - name: DATABASE
     value: /notification/data
   - name: REDIS_HOST
-    value: valkey-primary.default.svc.cluster.local
+    value: valkey.default.svc.cluster.local
   - name: REDIS_PORT
     value: "6379"
   - name: INTERNAL_PORT
