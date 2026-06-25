@@ -90,12 +90,13 @@ httpRoute:
       sectionName: default
       namespace: gateway
   hostnames:
-    - bento.k8s.local
+    - katsu.bento.k8s.local
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /api/katsu
+            value: /
       backendRefs:
-        - name: katsu-stateless-svc
+        - kind: Service
+          name: katsu-stateless-svc
           port: 8000
