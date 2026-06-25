@@ -32,7 +32,7 @@ startupProbe:
 
 env:
   - name: ALLOWED_HOSTS
-    value: "*"
+    value: "katsu.bento.k8s.local"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
