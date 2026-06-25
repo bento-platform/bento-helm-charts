@@ -70,16 +70,30 @@ Finaly, when the `infra` and `platform` layers are fully synced and healthy in A
 
 The `services` layer consists of the Bento core services: Katsu, Beacon, Public, Portal, Authz, WES, DRS, etc.
 
-This layer is deployed using an ArgoCD `ApplicationSet` that is configured to turn every 
-match for `deployment/services/*/values.yaml` into one `Application` for the Helm chart `stateless-svc`.
+This layer is deployed using an ArgoCD `ApplicationSet` that is configured to turn every file
+match for `deployment/services/*/.argocd-app.yaml` into one `Application` for the Helm chart `stateless-svc`.
+
+The `.argocd-app.yaml` file has the following structure:
+```yaml
+chart:
+  name: stateless-svc
+  repoURL: https://bento-platform.github.io/bento-helm-charts
+  version: 0.5.0
+```
+
+Instead of forcing all services to use the same version, the `.argocd-app.yaml` enables services to use specific 
+Helm Chart versions if needed.
 
 Since all Bento services have to be deployable with the Bento Helm Chart `stateless-svc`, this offers a streamlined and 
 declarative way of configuring all Bento serices for GitOps.
 
+On top of the `.argocd-app.yaml` file, a `values.yaml` file is required in the same directory.
+
 To add an application to the `services` layer:
 1. Create a new directory with the service's name, e.g. `deployment/services/etl` for `etl`
-2. Create a `values.yaml` for the service in the directory, based on the `stateless-svc` Chart's 
+2. Create a `.argocd-app.yaml` file and specify the Helm Chart to use
+3. Create a `values.yaml` for the service in the directory, based on the `stateless-svc` Chart's 
    [values](https://github.com/bento-platform/bento-helm-charts/blob/main/charts/stateless-svc/values.yaml)
-3. Commit, push and merge into `main`
+4. Commit, push and merge into `main`
 
 On its next cycle, ArgoCD will detect that a new application is defined in Git and will attempt to deploy it in k8s.
