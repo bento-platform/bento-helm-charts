@@ -31,8 +31,8 @@ startupProbe:
   periodSeconds: 5
 
 env:
-  - name: ALLOWED_HOSTS
-    value: "katsu.bento.k8s.local"
+  - name: KATSU_ALLOWED_HOSTS
+    value: "katsu.bento.k8s.local,localhost"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
