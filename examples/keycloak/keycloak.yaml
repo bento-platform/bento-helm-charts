@@ -6,13 +6,13 @@ spec:
   instances: 1
   db:
     vendor: postgres
-    host: keycloak-db-rw.default.svc.cluster.local
+    host: keycloak-db-rw.keycloak.svc.cluster.local
     database: keycloak
     usernameSecret:
-      name: keycloak-db-secret
+      name: keycloak-db-app
       key: username
     passwordSecret:
-      name: keycloak-db-secret
+      name: keycloak-db-app
       key: password
   http:
     httpEnabled: true
