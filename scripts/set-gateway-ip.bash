@@ -2,8 +2,7 @@ HOST_IP=""
 GW_PORT="443"
 GW_ADDR=$(kubectl get gateway -n gateway gateway -o jsonpath='{.status.addresses[0].value}')
 
-# case "$(uname -s)" in
-case "Darwin" in
+case "$(uname -s)" in
     Darwin)
         # MacOS Cloud-Provider-Kind exposes the Gateway on an ephemeral port on localhost.
         # Traffic is routed through 127.0.0.1 on that port
