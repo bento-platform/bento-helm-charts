@@ -17,6 +17,6 @@ case "$(uname -s)" in
         ;;
 esac
 
-echo "Root CA certificate has been created at /tmp/dev-ca.crt and added to the trusted certs for Linux."
+echo "Root CA certificate has been created at /tmp/dev-ca.crt and added to the trusted certs."
 echo ""
-echo "  NOTE: for browser trust, you must manually import the CA in the browser of your choice"
+echo "  NOTE: for browser trust, you must manually import the CA in the browser of your choice."
