@@ -127,7 +127,7 @@ curl -k https://argocd.bento.k8s.local
 
 
 > [!IMPORTANT]
-> If you run into a `Connection refused` error when attempting to reach the hostname (`<GATEWAY IP>:443`), 
+> For **Linux** users, if you run into a `Connection refused` error when attempting to reach the hostname (`<GATEWAY IP>:443`), 
 > it is likely because of firewall rules preventing IP forwarding to the Docker subnet.
 >
 > To resolve this, run the following helper script to temporarily disable firewall rules:
@@ -136,6 +136,17 @@ curl -k https://argocd.bento.k8s.local
 > ```
 >
 > The gateway requests should now work.
+
+> [!WARNING]
+> For **Windows** and **MacOS** users, Cloud-Provider-Kind should create the Gateway container with an extra port mapping.
+>
+> This port is mapped to port 443 on the Gateway to enable HTTPS routing.
+>
+> If you are a **MacOS** or **Windows** user, take note of this port, it is in the script's output.
+>
+> It will need to be included in HTTPS URLs for networking to work: `https://<domain>:<mapped port>`
+>
+> For instance, ArgoCD should be accessible at `https://argocd.bento.k8s.local:<mapped port>`
 
 ## Export and trust root CA for HTTPS
 
@@ -163,6 +174,25 @@ curl https://argocd.bento.k8s.local
 > and import the root CA file.
 >
 > Afterwards your browser should implicitly trust TLS certs for the whole stack.
+
+## Validate Gateway API networking
+
+The `platform` layer deploys a `Gateway` resource, which enables external traffic to be routed to 
+in-cluster services.
+
+With Kind and [Cloud-Provider-Kind](https://github.com/kubernetes-sigs/cloud-provider-kind#mac-windows-and-wsl2-support) as the 
+local Kubernetes cluster, the Gateway is created as a Docker container.
+
+Check that a Docker container with the name starting with `kindccm-gw` exists:
+```bash
+docker ps
+```
+
+This container is created and managed by Cloud-Provider-Kind as soon as the `Gateway` resource is created, providing 
+a network path from the host machine to k8s services exposed with an `HTTPRoute`.
+
+
+
 
 ## Explore the stack in the ArgoCD UI
 
