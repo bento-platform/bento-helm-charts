@@ -10,7 +10,7 @@ spec:
   gatewayClassName: cloud-provider-kind
   listeners:
     - name: default
-      hostname: "*.k8s.local"
+      hostname: "*.bento.k8s.local"
       port: 443
       protocol: HTTPS
       allowedRoutes:
