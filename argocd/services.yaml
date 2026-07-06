@@ -39,7 +39,6 @@ spec:
 
       destination:
         server: https://kubernetes.default.svc
-        # TODO: doc
         namespace: "default"
 
       syncPolicy:

@@ -15,8 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        # TODO: change to HEAD when ready to merge
-        revision: 21-madr-deployment-structure
+        revision: HEAD
         directories:
           - path: deployment/platform/*
   template:
@@ -26,7 +25,6 @@ spec:
       project: "default"
       source:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        # TODO: change to HEAD when ready to merge
         targetRevision: HEAD
         path: "{{.path.path}}"
       destination:

@@ -14,7 +14,7 @@ case "$(uname -s)" in
 
         # Discover the ephemeral Envoy port mapped to the host
         ENVOY_CONTAINER=$(docker ps --filter "name=kindccm-gw" --format '{{.Names}}'  | head -n1)
-        export GW_PORT=$(docker inspect  -f '{{(index (index .NetworkSettings.Ports "10000/tcp") 0).HostPort}}'  "$ENVOY_CONTAINER")
+        export GW_PORT=$(docker inspect  -f '{{(index (index .NetworkSettings.Ports "443/tcp") 0).HostPort}}'  "$ENVOY_CONTAINER")
         ;;
     Linux)
         # On Linux, the Gateway can be reached on the container IP directly
