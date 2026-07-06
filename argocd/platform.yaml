@@ -1,0 +1,42 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  # Allows the toggling of auto-sync on generated Applications
+  # while keeping track of SyncOptions like: CreateNamespace and ServerSideApply
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy/automated
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/bento-platform/bento-helm-charts.git
+        revision: HEAD
+        directories:
+          - path: deployment/platform/*
+  template:
+    metadata:
+      name: "{{.path.basename}}-resources"
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/bento-platform/bento-helm-charts.git
+        targetRevision: HEAD
+        path: "{{.path.path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        # IMPORTANT: basename dir structure determines the destination namespace
+        # e.g. for dir "platform/cert-manager" the namespace is "cert-manager".
+        namespace: "{{.path.basename}}"
+      syncPolicy:
+        automated:
+          enabled: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - PruneLast=true

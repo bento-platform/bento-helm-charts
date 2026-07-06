@@ -1,0 +1,24 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gateway
+  namespace: gateway
+  annotations:
+    cert-manager.io/cluster-issuer: dev-ca-issuer
+spec:
+  gatewayClassName: cloud-provider-kind
+  listeners:
+    - name: default
+      hostname: "*.bento.k8s.local"
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ''
+            kind: Secret
+            name: "bento-k8s-local-tls"

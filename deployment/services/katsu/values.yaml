@@ -1,0 +1,101 @@
+---
+image:
+  repository: ghcr.io/bento-platform/katsu
+  tag: "13.2.0"
+
+service:
+  port: 8000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+env:
+  - name: KATSU_ALLOWED_HOSTS
+    value: "katsu.bento.k8s.local,localhost"
+  - name: POSTGRES_HOST
+    valueFrom:
+      secretKeyRef:
+        name: katsu-db-superuser
+        key: host
+  - name: POSTGRES_DATABASE
+    value: app
+  - name: POSTGRES_USER
+    valueFrom:
+      secretKeyRef:
+        name: katsu-db-superuser
+        key: user
+  - name: POSTGRES_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: katsu-db-superuser
+        key: password
+  - name: CHORD_DEBUG
+    value: "False"
+  - name: SERVICE_TEMP
+    value: "/app/tmp"
+  - name: DJANGO_SETTINGS_MODULE
+    value: "chord_metadata_service.metadata.settings"
+  - name: BENTO_AUTHZ_ENABLED
+    value: "False"
+
+configMap:
+  enabled: true
+  data:
+    katsu-config: |
+      {
+        "overview": [],
+        "search": [],
+        "fields": {},
+        "rules": {
+          "count_threshold": 5,
+          "max_query_parameters": 2
+        }
+      }
+
+volumes:
+  - name: katsu-config
+    configMap:
+      name: katsu-stateless-svc
+volumeMounts:
+  - name: katsu-config
+    mountPath: /app/chord_metadata_service/config.json
+    subPath: katsu-config
+    readOnly: true
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+      namespace: gateway
+  hostnames:
+    - katsu.bento.k8s.local
+# Leave backendRefs to be templated by the Helm Chart
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
