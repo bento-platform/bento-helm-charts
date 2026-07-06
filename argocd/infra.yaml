@@ -18,8 +18,7 @@ spec:
   source:
     path: deployment/infra/
     repoURL: https://github.com/bento-platform/bento-helm-charts.git
-    # TODO: change to HEAD when ready to merge
-    targetRevision: 21-madr-deployment-structure
+    targetRevision: HEAD
 
   syncPolicy:
     automated:

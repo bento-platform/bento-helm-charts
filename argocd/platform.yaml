@@ -27,7 +27,7 @@ spec:
       source:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
         # TODO: change to HEAD when ready to merge
-        targetRevision: 21-madr-deployment-structure
+        targetRevision: HEAD
         path: "{{.path.path}}"
       destination:
         server: https://kubernetes.default.svc

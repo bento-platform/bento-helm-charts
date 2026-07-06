@@ -15,9 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        # TODO: change to HEAD when ready to merge
-        revision: 21-madr-deployment-structure
-        # TODO: check if simpler way, borrowing this from OICR
+        revision: HEAD
         files:
           - path: deployment/services/*/.argocd-app.yaml
   template:
@@ -29,8 +27,7 @@ spec:
 
       sources:
         - repoURL: https://github.com/bento-platform/bento-helm-charts.git
-          # TODO: change to HEAD when ready to merge
-          targetRevision: 21-madr-deployment-structure
+          targetRevision: HEAD
           ref: values
 
         - chart: "{{.chart.name}}"
