@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: garage-operator
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: garage-operator
+    app.kubernetes.io/component: garage-operator
+    app.kubernetes.io/part-of: infra
+
+spec:
+  project: default
+  source:
+    chart: garage-operator
+    repoURL: ghcr.io/rajsinghtech/charts
+    targetRevision: 0.6.18
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: garage-operator-system
+
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
