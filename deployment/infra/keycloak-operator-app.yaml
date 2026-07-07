@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak-operator
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: keycloak-operator
+    app.kubernetes.io/component: keycloak-operator
+    app.kubernetes.io/part-of: infra
+
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/bento-platform/bento-helm-charts.git
+    targetRevision: HEAD
+    path: deployment/infra/keycloak-operator
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keycloak
+
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
