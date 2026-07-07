@@ -3,6 +3,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: authz-db
+  namespace: default
 spec:
   instances: 1
   bootstrap:
@@ -16,6 +17,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: katsu-db
+  namespace: default
 spec:
   instances: 1
   # PostGIS-enabled image required by Katsu for geographic data support
@@ -23,5 +25,33 @@ spec:
   # Required locally so Katsu can create the PostGIS extension on first run
   # TODO: figure out a non-superuser approach for production
   enableSuperuserAccess: true
+  storage:
+    size: 1Gi
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: reference-db
+  namespace: default
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: reference
+      owner: reference
+  storage:
+    size: 1Gi
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: keycloak-db
+  namespace: keycloak
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: keycloak
+      owner: keycloak
   storage:
     size: 1Gi
