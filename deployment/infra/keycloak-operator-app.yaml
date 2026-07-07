@@ -12,8 +12,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/bento-platform/bento-helm-charts.git
-    targetRevision: 35-argocdinfra-add-missing-operators
-
+    targetRevision: HEAD
     path: deployment/infra/keycloak-operator
 
   destination:
