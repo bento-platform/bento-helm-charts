@@ -13,7 +13,7 @@ spec:
   source:
     chart: garage-operator
     repoURL: ghcr.io/rajsinghtech/charts
-    targetRevision: 0.6.18
+    targetRevision: 0.6.20
 
   destination:
     server: https://kubernetes.default.svc
