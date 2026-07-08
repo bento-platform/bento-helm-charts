@@ -1,0 +1,13 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: drop-box-key
+  namespace: default
+spec:
+  clusterRef:
+    name: garage
+  bucketPermissions:
+    - bucketRef: drop-box
+      read: true
+      write: true
