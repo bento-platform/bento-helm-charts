@@ -8,6 +8,7 @@ spec:
   clusterRef:
     name: garage
   bucketPermissions:
-    - bucketRef: drop-box
+    - bucketRef:
+        name: drop-box
       read: true
       write: true
