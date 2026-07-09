@@ -9,3 +9,4 @@ resources:
   - drop-box-bucket.yaml
   - drop-box-bucket-key.yaml
   - http-route.yaml
+  - admin-token-secret.yaml
