@@ -1,0 +1,65 @@
+---
+image:
+  repository: ghcr.io/bento-platform/bento_authorization_service
+  tag: "0.12.1"
+
+service:
+  port: 5000
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+env:
+  - name: DATABASE_URI
+    valueFrom:
+      secretKeyRef:
+        name: authz-db-app
+        key: uri
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: BENTO_DEBUG
+    value: "False"
+  - name: OPENID_CONFIG_URL
+    value: "https://example.com/realms/bento/.well-known/openid-configuration"
+  - name: CORS_ORIGINS
+    value: "*"
+  - name: SERVICE_URL_BASE_PATH
+    value: "/api/authorization"
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+      namespace: gateway
+  hostnames:
+    - authz.bento.k8s.local
+# Leave backendRefs to be templated by the Helm Chart
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
