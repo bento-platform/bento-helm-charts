@@ -1,0 +1,14 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: drs-key
+  namespace: default
+spec:
+  clusterRef:
+    name: garage
+  bucketPermissions:
+    - bucketRef:
+        name: drs
+      read: true
+      write: true
