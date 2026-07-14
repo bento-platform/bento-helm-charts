@@ -23,3 +23,10 @@ spec:
   hostname:
     strict: false
   startOptimized: false
+  
+  # MASTER REALM ADMIN BOOTSTRAP:
+  # This manifest will create a temporary admin user for the master realm, with credentials 
+  # in the `keycloak-initial-admin` k8s Secret created by the operator.
+  # 
+  # For prod scenarios, we recommend specifying the master real admin user via `spec.bootstrapAdmin`.
+  # See: https://www.keycloak.org/operator/advanced-configuration#_admin_bootstrapping
