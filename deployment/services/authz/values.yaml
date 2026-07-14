@@ -41,7 +41,7 @@ env:
   - name: BENTO_DEBUG
     value: "False"
   - name: OPENID_CONFIG_URL
-    value: "https://example.com/realms/bento/.well-known/openid-configuration"
+    value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/master/.well-known/openid-configuration"
   - name: CORS_ORIGINS
     value: "*"
   - name: SERVICE_URL_BASE_PATH
