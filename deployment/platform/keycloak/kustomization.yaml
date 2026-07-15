@@ -4,3 +4,4 @@ kind: Kustomization
 
 resources:
   - keycloak.yaml
+  - realm-import.yaml

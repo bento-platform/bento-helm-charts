@@ -1,0 +1,13 @@
+---
+apiVersion: k8s.keycloak.org/v2beta1
+kind: KeycloakRealmImport
+metadata:
+  name: bentov2-realm
+  namespace: keycloak
+spec:
+  keycloakCRName: keycloak
+  realm:
+    id: bentov2
+    realm: bentov2
+    displayName: Bento
+    enabled: true
