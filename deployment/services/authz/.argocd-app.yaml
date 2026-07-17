@@ -2,4 +2,4 @@
 chart:
   name: stateless-svc
   repoURL: https://bento-platform.github.io/bento-helm-charts
-  version: 0.5.1
+  version: 0.5.2
