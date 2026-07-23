@@ -5,30 +5,6 @@ image:
 service:
   port: 5000
 
-livenessProbe:
-  httpGet:
-    path: /service-info
-    port: http
-    httpHeaders:
-      - name: Host
-        value: localhost
-readinessProbe:
-  httpGet:
-    path: /service-info
-    port: http
-    httpHeaders:
-      - name: Host
-        value: localhost
-startupProbe:
-  httpGet:
-    path: /service-info
-    port: http
-    httpHeaders:
-      - name: Host
-        value: localhost
-  failureThreshold: 30
-  periodSeconds: 5
-
 persistence:
   enabled: true
   mountPath: /drs/bento_drs/data
