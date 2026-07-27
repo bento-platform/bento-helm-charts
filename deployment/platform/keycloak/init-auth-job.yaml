@@ -16,6 +16,8 @@ spec:
               value: "true"
             - name: BENTO_PLATFORM
               value: "kubernetes"
+            - name: BENTO_AUTH_ADMIN_REALM
+              value: "master"
             - name: BENTOV2_WES_WORKFLOW_TIMEOUT
               value: "900"
             - name: BENTOV2_AUTH_REALM
@@ -37,11 +39,11 @@ spec:
             - name: BENTOV2_AUTH_ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  name: keycloak-permanent-admin
+                  name: keycloak-initial-admin
                   key: username
             - name: BENTOV2_AUTH_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: keycloak-permanent-admin
+                  name: keycloak-initial-admin
                   key: password
   backoffLimit: 0
