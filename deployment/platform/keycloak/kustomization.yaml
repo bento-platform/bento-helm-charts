@@ -6,3 +6,4 @@ resources:
   - keycloak.yaml
   - realm-import.yaml
   - init-auth-job.yaml
+  - init-auth-rbac.yaml
