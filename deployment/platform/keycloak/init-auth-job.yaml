@@ -6,10 +6,12 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: bentoctl-init-auth
       restartPolicy: Never
       containers:
         - name: bentoctl-init-auth
           image: ghcr.io/bento-platform/bentoctl:pr-360
+          imagePullPolicy: Always
           command: ["python3", "-m", "py_bentoctl.entry", "init-auth"]
           env:
             - name: BENTOV2_USE_EXTERNAL_IDP
