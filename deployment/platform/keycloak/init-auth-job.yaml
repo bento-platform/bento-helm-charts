@@ -24,6 +24,8 @@ spec:
               value: "900"
             - name: BENTOV2_AUTH_REALM
               value: "bentov2"
+            - name: BENTO_AUTH_CREATE_REALM
+              value: "true"
             - name: BENTOV2_AUTH_PUBLIC_URL
               value: "http://keycloak-service.keycloak.svc.cluster.local:8080"
             - name: BENTOV2_AUTH_CLIENT_ID
