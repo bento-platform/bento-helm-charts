@@ -50,4 +50,16 @@ spec:
                 secretKeyRef:
                   name: keycloak-initial-admin
                   key: password
+            - name: BENTO_AUTH_CREATE_TEST_USER
+              value: "true"
+            - name: BENTOV2_AUTH_TEST_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bentoctl-test-user
+                  key: username
+            - name: BENTOV2_AUTH_TEST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bentoctl-test-user
+                  key: password
   backoffLimit: 0

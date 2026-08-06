@@ -6,3 +6,4 @@ resources:
   - keycloak.yaml
   - init-auth-job.yaml
   - init-auth-rbac.yaml
+  - init-auth-test-user-secret.yaml
