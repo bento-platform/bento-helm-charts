@@ -3,6 +3,8 @@ kind: Job
 metadata:
   name: bentoctl-init-auth
   namespace: keycloak
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   template:
     spec:

@@ -41,17 +41,3 @@ spec:
       owner: reference
   storage:
     size: 1Gi
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
-  name: keycloak-db
-  namespace: keycloak
-spec:
-  instances: 1
-  bootstrap:
-    initdb:
-      database: keycloak
-      owner: keycloak
-  storage:
-    size: 1Gi

@@ -3,12 +3,16 @@ kind: ServiceAccount
 metadata:
   name: bentoctl-init-auth
   namespace: keycloak
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: bentoctl-init-auth-secrets
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
@@ -19,6 +23,8 @@ kind: RoleBinding
 metadata:
   name: bentoctl-init-auth-secrets
   namespace: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 subjects:
   - kind: ServiceAccount
     name: bentoctl-init-auth
