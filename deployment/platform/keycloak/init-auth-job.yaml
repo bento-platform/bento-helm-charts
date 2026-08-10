@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bentoctl-init-auth
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  template:
+    spec:
+      serviceAccountName: bentoctl-init-auth
+      restartPolicy: Never
+      containers:
+        - name: bentoctl-init-auth
+          image: ghcr.io/bento-platform/bentoctl:pr-360
+          imagePullPolicy: Always
+          command: ["python3", "-m", "py_bentoctl.entry", "init-auth"]
+          env:
+            - name: BENTOV2_USE_EXTERNAL_IDP
+              value: "true"
+            - name: BENTO_PLATFORM
+              value: "kubernetes"
+            - name: BENTO_AUTH_ADMIN_REALM
+              value: "master"
+            - name: BENTOV2_WES_WORKFLOW_TIMEOUT
+              value: "900"
+            - name: BENTOV2_AUTH_REALM
+              value: "bentov2"
+            - name: BENTO_AUTH_CREATE_REALM
+              value: "true"
+            - name: BENTOV2_AUTH_PUBLIC_URL
+              value: "http://keycloak-service.keycloak.svc.cluster.local:8080"
+            - name: BENTOV2_AUTH_CLIENT_ID
+              value: "local_bentov2"
+            - name: BENTOV2_PUBLIC_URL
+              value: "https://bento.k8s.local"
+            - name: BENTOV2_PORTAL_PUBLIC_URL
+              value: "https://portal.bento.k8s.local"
+            - name: BENTOV2_AUTH_LOGIN_REDIRECT_PATH
+              value: "/*"
+            - name: BENTO_AGGREGATION_CLIENT_ID
+              value: "aggregation"
+            - name: BENTO_WES_CLIENT_ID
+              value: "wes"
+            - name: BENTOV2_AUTH_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-initial-admin
+                  key: username
+            - name: BENTOV2_AUTH_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-initial-admin
+                  key: password
+            - name: BENTO_AUTH_CREATE_TEST_USER
+              value: "true"
+            - name: BENTOV2_AUTH_TEST_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bentoctl-test-user
+                  key: username
+            - name: BENTOV2_AUTH_TEST_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bentoctl-test-user
+                  key: password
+  backoffLimit: 0
