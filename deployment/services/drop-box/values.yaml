@@ -1,0 +1,60 @@
+image:
+  repository: ghcr.io/bento-platform/bento_drop_box_service
+  tag: "2.1.4"
+
+service:
+  port: 5000
+
+env:
+  - name: SERVICE_URL_BASE_PATH
+    value: "https://drop-box.bento.k8s.local"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
+  - name: OPENID_CONFIG_URL
+    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+  - name: CORS_ORIGINS
+    value: "https://portal.bento.k8s.local"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: S3_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: drop-box-key
+        key: endpoint
+  - name: S3_BUCKET
+    value: "drop-box"
+  - name: S3_REGION_NAME
+    valueFrom:
+      secretKeyRef:
+        name: drop-box-key
+        key: region
+  - name: S3_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drop-box-key
+        key: access-key-id
+  - name: S3_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drop-box-key
+        key: secret-access-key
+  - name: S3_USE_HTTPS
+    value: "false"
+  - name: S3_VALIDATE_SSL
+    value: "false"
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+      namespace: gateway
+  hostnames:
+    - drop-box.bento.k8s.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
