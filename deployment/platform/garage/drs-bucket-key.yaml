@@ -12,3 +12,4 @@ spec:
         name: drs
       read: true
       write: true
+      owner: false

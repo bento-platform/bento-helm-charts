@@ -12,3 +12,4 @@ spec:
         name: drop-box
       read: true
       write: true
+      owner: false
