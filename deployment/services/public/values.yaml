@@ -39,7 +39,7 @@ env:
   - name: OPENID_CONFIG_URL
     value: "https://test.cilogon.org/.well-known/openid-configuration"
   - name: CLIENT_ID
-    value: "cilogon:oa4mp,2012:/client_id/574c385d44ed69f315bb4f7a86f58a2"
+    value: "cilogon:oa4mp,2012:/client_id/67b21100e8b49e3e3ddfa45bbaeda63a"
 
 httpRoute:
   enabled: true
