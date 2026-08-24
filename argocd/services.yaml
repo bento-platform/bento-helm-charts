@@ -15,7 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        revision: HEAD
+        revision: exp/cilogon-oidc-pkce
         files:
           - path: deployment/services/*/.argocd-app.yaml
   template:
@@ -27,7 +27,7 @@ spec:
 
       sources:
         - repoURL: https://github.com/bento-platform/bento-helm-charts.git
-          targetRevision: HEAD
+          targetRevision: exp/cilogon-oidc-pkce
           ref: values
 
         - chart: "{{.chart.name}}"

@@ -17,9 +17,9 @@ env:
   - name: BENTO_PUBLIC_URL
     value: "https://bento.k8s.local"
   - name: OPENID_CONFIG_URL
-    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+    value: "https://test.cilogon.org/.well-known/openid-configuration"
   - name: CLIENT_ID
-    value: "local_bentov2"
+    value: "cilogon:oa4mp,2012:/client_id/574c385d44ed69f315bb4f7a86f58a2"
 
 httpRoute:
   enabled: true
