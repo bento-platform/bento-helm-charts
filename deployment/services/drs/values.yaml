@@ -1,0 +1,58 @@
+image:
+  repository: ghcr.io/bento-platform/bento_drs
+  tag: "0.21.3"
+
+service:
+  port: 5000
+
+env:
+  - name: SERVICE_BASE_URL
+    value: "https://drs.bento.k8s.local"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
+  - name: CORS_ORIGINS
+    value: "https://portal.bento.k8s.local"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: S3_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: endpoint
+  - name: S3_BUCKET
+    value: "drs"
+  - name: S3_REGION_NAME
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: region
+  - name: S3_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: access-key-id
+  - name: S3_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: secret-access-key
+  - name: S3_USE_HTTPS
+    value: "false"
+  - name: S3_VALIDATE_SSL
+    value: "false"
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+      namespace: gateway
+  hostnames:
+    - drs.bento.k8s.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
