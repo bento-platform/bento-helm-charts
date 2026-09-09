@@ -1,5 +1,22 @@
 apiVersion: v1
 entries:
+  litestream-svc:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-09-09T16:56:25.940205943Z"
+    description: 'Runs a single-replica, SQLite-backed service as a StatefulSet with
+      Litestream replicating the database to S3-compatible object storage for durability
+      across pod restarts and redeployments. Use this instead of stateless-svc for
+      any service whose local state (a SQLite file) needs to survive pod churn. '
+    digest: 4209f2802821e317b0173f0146f8357b38ff813c8482b7b1e0ed41478480ae22
+    maintainers:
+    - name: v-rocheleau
+      url: https://github.com/v-rocheleau
+    name: litestream-svc
+    type: application
+    urls:
+    - https://github.com/bento-platform/bento-helm-charts/releases/download/litestream-svc-0.1.0/litestream-svc-0.1.0.tgz
+    version: 0.1.0
   stateless-svc:
   - apiVersion: v2
     appVersion: latest
@@ -89,4 +106,4 @@ entries:
     urls:
     - https://github.com/bento-platform/bento-helm-charts/releases/download/stateless-svc-0.1.0/stateless-svc-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-16T15:28:20.821848726Z"
+generated: "2026-09-09T16:56:25.940223155Z"
