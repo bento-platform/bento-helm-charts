@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-litestream" (include "litestream-svc.fullname" .) }}
+  labels:
+    {{- include "litestream-svc.labels" . | nindent 4 }}
+data:
+  litestream.yml: |
+    {{- if .Values.litestream.metrics.enabled }}
+    addr: ":{{ .Values.litestream.metrics.port }}"
+    {{- end }}
+    dbs:
+      - path: {{ required "sqlite.databasePath is required" .Values.sqlite.databasePath }}
+        replica:
+          url: {{ required "litestream.replica.url is required (e.g. s3://mybucket/path/to/db)" .Values.litestream.replica.url }}
+          {{- with .Values.litestream.replica.endpoint }}
+          endpoint: {{ . }}
+          {{- end }}
+          force-path-style: {{ .Values.litestream.replica.forcePathStyle }}
+          {{- with .Values.litestream.replica.region }}
+          region: {{ . }}
+          {{- end }}
+          {{- with .Values.litestream.replica.retention }}
+          retention: {{ . }}
+          {{- end }}
+          {{- with .Values.litestream.replica.syncInterval }}
+          sync-interval: {{ . }}
+          {{- end }}

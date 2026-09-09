@@ -1,0 +1,17 @@
+{{ include "litestream-svc.fullname" . }} deployed as a single-replica StatefulSet.
+
+Pod:      {{ include "litestream-svc.fullname" . }}-0
+Data PVC: data-{{ include "litestream-svc.fullname" . }}-0
+DB path:  {{ .Values.sqlite.databasePath }}
+Replica:  {{ .Values.litestream.replica.url }}
+
+Check restore/replication status:
+  kubectl logs {{ include "litestream-svc.fullname" . }}-0 -c init-litestream-restore
+  kubectl logs {{ include "litestream-svc.fullname" . }}-0 -c litestream -f
+
+Confirm the app is writing where Litestream expects:
+  kubectl exec {{ include "litestream-svc.fullname" . }}-0 -c litestream -- \
+    litestream databases -config /etc/litestream.yml
+
+Reminder: replicaCount must stay at 1. Litestream does not support multiple
+concurrent writers against the same replica.

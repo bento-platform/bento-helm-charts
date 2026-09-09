@@ -1,0 +1,169 @@
+# Default values for litestream-svc.
+
+image:
+  repository: ""
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# Override the container command/args if the image's default entrypoint isn't
+# what you want to run (no need to bake anything Litestream-aware into this --
+# the app image stays exactly what devs run locally).
+command: []
+args: []
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Litestream does not support multiple live writers against the same replica
+# set today, so this must stay 1. Left as a value (rather than hardcoded) only
+# so it's visible/explicit in a values diff -- do not raise it.
+replicaCount: 1
+
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 1000  # usually needed so the app container can write to the PVC
+                    # on first mount -- see chart README.
+
+securityContext: {}
+
+service:
+  # Always rendered as a headless Service (clusterIP: None) -- required as
+  # the StatefulSet's governing serviceName. Fine for normal client traffic
+  # too since there's only ever one pod; front it with ingress/httpRoute for
+  # external exposure.
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - chart-example.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+# Additional environment variables on the app container.
+env: []
+  # - name: DATABASE
+  #   value: "/data/db.sqlite3"
+
+# Additional volumes/volumeMounts on the app container (Litestream's own
+# ConfigMap/volume/mounts are wired in automatically -- these are for anything
+# else the app needs, e.g. an emptyDir for scratch files).
+volumes: []
+volumeMounts: []
+
+resources: {}
+
+livenessProbe: {}
+readinessProbe: {}
+startupProbe: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+configMap:
+  enabled: false
+  data: {}
+  binaryData: {}
+
+secret:
+  enabled: false
+  stringData: {}
+
+persistence:
+  # Shared mount point for both the app container and the Litestream
+  # containers. The SQLite database file must live under this path.
+  mountPath: /data
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+sqlite:
+  # Absolute path to the SQLite database file, INSIDE persistence.mountPath.
+  # e.g. /data/db.sqlite3
+  databasePath: ""
+
+litestream:
+  image:
+    repository: litestream/litestream
+    tag: "0.5"
+    pullPolicy: IfNotPresent
+
+  resources: {}
+
+  # Litestream's own Prometheus metrics endpoint (exposed on the litestream
+  # sidecar container, separate from the app's own service port).
+  metrics:
+    enabled: true
+    port: 9090
+
+  replica:
+    # Required. e.g. s3://mybucket/path/to/db
+    url: ""
+    # S3-compatible endpoint. Required for anything that isn't AWS S3, e.g.
+    # your OpenStack Swift/RGW S3 endpoint: https://s3.example.com
+    endpoint: ""
+    # Almost always required for non-AWS S3-compatible stores (OpenStack
+    # Swift/Ceph RGW included) since virtual-hosted-style bucket DNS usually
+    # isn't set up for them.
+    forcePathStyle: true
+    # Some S3-compatible providers require a non-empty region even if it's
+    # not meaningful to them.
+    region: ""
+    retention: "72h"
+    syncInterval: "1s"
+
+  restore:
+    # Skip restore if the database file already exists on the PVC.
+    ifDBNotExists: true
+    # Skip restore if the replica has no snapshots yet (first-ever deploy).
+    ifReplicaExists: true
+
+  credentials:
+    # Preferred: point at a Secret created outside this chart (e.g. by
+    # External Secrets Operator, Vault, or however you manage secrets) with
+    # keys LITESTREAM_ACCESS_KEY_ID and LITESTREAM_SECRET_ACCESS_KEY.
+    existingSecret: ""
+    # Fallback for local/dev use only. Do not commit real credentials here --
+    # pass via --set or a gitignored values file. Leave both empty when using
+    # existingSecret.
+    accessKeyId: ""
+    secretAccessKey: ""
+
+# Extra init containers appended after the Litestream restore init container
+# (e.g. schema migrations that must run against the restored database).
+extraInitContainers: []
+
+# Additional manifests to deploy alongside the service, e.g. an ExternalSecret
+# that populates litestream.credentials.existingSecret.
+extraManifests: []

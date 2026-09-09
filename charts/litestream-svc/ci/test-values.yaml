@@ -1,0 +1,29 @@
+image:
+  repository: example.com/some-sqlite-service
+  tag: "1.2.3"
+
+sqlite:
+  databasePath: /data/db.sqlite3
+
+persistence:
+  storageClassName: cinder-csi
+  size: 5Gi
+
+litestream:
+  replica:
+    url: s3://my-bucket/some-sqlite-service/db
+    endpoint: https://swift.example-openstack.internal
+    forcePathStyle: true
+    region: RegionOne
+  credentials:
+    existingSecret: some-sqlite-service-litestream-creds
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
