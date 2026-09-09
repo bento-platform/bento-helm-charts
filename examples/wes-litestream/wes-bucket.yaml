@@ -1,0 +1,33 @@
+# Local-dev only:
+# Creates a Garage bucket + S3 credentials for WES's Litestream backups
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageBucket
+metadata:
+  name: wes-litestream
+spec:
+  clusterRef:
+    name: garage
+  quotas:
+    maxSize: 5Gi
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: wes-litestream-creds
+spec:
+  clusterRef:
+    name: garage
+  name: "WES Litestream Key"
+  # Renames the generated Secret's key/value fields to match exactly what the
+  # litestream-svc chart's StatefulSet reads via secretKeyRef.
+  # Simply set the Chart value to the GarageKey's name:
+  #   litestream.credentials.existingSecret: wes-litestream-creds
+  secretTemplate:
+    accessKeyIdKey: LITESTREAM_ACCESS_KEY_ID
+    secretAccessKeyKey: LITESTREAM_SECRET_ACCESS_KEY
+  bucketPermissions:
+    - bucketRef:
+        name: wes-litestream
+      read: true
+      write: true

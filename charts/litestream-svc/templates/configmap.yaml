@@ -1,0 +1,14 @@
+{{- if .Values.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "litestream-svc.fullname" . }}
+  labels:
+    {{- include "litestream-svc.labels" . | nindent 4 }}
+data:
+  {{- toYaml .Values.configMap.data | nindent 2 }}
+{{- with .Values.configMap.binaryData }}
+binaryData:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,20 @@
+---
+apiVersion: v2
+
+name: litestream-svc
+
+description: >
+  Runs a single-replica, SQLite-backed service as a StatefulSet with Litestream
+  replicating the database to S3-compatible object storage for durability across
+  pod restarts and redeployments. Use this instead of stateless-svc for any
+  service whose local state (a SQLite file) needs to survive pod churn.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.0.0"
+
+maintainers:
+  - name: v-rocheleau
+    url: https://github.com/v-rocheleau
