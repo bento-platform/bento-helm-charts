@@ -1,0 +1,128 @@
+---
+image:
+  repository: ghcr.io/bento-platform/bento_wes
+  tag: "0.16.6"
+
+service:
+  port: 5000
+  targetPort: 5000
+
+persistence:
+  mountPath: /wes/data
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+sqlite:
+  databasePath: /wes/data/bento_wes.db
+
+litestream:
+  replica:
+    url: "s3://wes-litestream/db"
+    endpoint: "http://garage.default.svc.cluster.local:3900"
+    forcePathStyle: true
+    region: "garage"
+  credentials:
+    existingSecret: "wes-litestream-creds"
+
+# Space for workflow execution, ephemeral by design so uses emptyDir
+volumes:
+  - name: wes-tmp
+    emptyDir: {}
+volumeMounts:
+  - name: wes-tmp
+    mountPath: /wes/tmp
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: BENTO_URL
+    value: "https://portal.bento.k8s.local/"
+  - name: CELERY_RESULT_BACKEND
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: CELERY_BROKER_URL
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: BENTO_EVENT_REDIS_URL
+    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+  - name: CELERY_DEBUG
+    value: "false"
+  - name: SERVICE_ID
+    value: ""
+  - name: SERVICE_DATA
+    value: "/wes/data"
+  - name: DATABASE
+    value: "/wes/data/bento_wes.db"
+  - name: SERVICE_TEMP
+    value: "/wes/tmp"
+  - name: SERVICE_BASE_URL
+    value: "https://wes.bento.k8s.local"
+  - name: WOM_TOOL_LOCATION
+    value: "/womtool.jar"
+  - name: WORKFLOW_HOST_ALLOW_LIST
+    value: ""
+  - name: SERVICE_REGISTRY_URL
+    value: "http://dummy"
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: WORKFLOW_TIMEOUT
+    value: "300"
+  - name: CORS_ORIGINS
+    value: "https://portal.bento.k8s.local"
+  - name: BENTO_AUTHZ_ENABLED
+    value: "True"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
+  - name: BENTO_OPENID_CONFIG_URL
+    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+  - name: WES_CLIENT_ID
+    valueFrom:
+      secretKeyRef:
+        name: wes-oidc-secret
+        key: id
+  - name: WES_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: wes-oidc-secret
+        key: secret
+
+livenessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+readinessProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+startupProbe:
+  httpGet:
+    path: /service-info
+    port: http
+    httpHeaders:
+      - name: Host
+        value: localhost
+  failureThreshold: 30
+  periodSeconds: 5
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+      namespace: gateway
+  hostnames:
+    - wes.bento.k8s.local
+# Leave backendRefs to be templated by the Helm Chart
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
