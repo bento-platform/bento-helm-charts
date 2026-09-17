@@ -18,7 +18,7 @@ spec:
   source:
     path: deployment/infra/
     repoURL: https://github.com/bento-platform/bento-helm-charts.git
-    targetRevision: HEAD
+    targetRevision: feat/services/service-registry
 
   syncPolicy:
     automated:

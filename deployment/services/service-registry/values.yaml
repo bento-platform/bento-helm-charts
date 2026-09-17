@@ -1,0 +1,169 @@
+---
+image:
+  repository: ghcr.io/bento-platform/bento_service_registry
+  tag: "1.6.0"
+
+service:
+  port: 5000
+
+# The stateless-svc Chart has no config checksum annotation, so editing the
+# ConfigMap below does not roll the pods. Bump this when bento_services.json
+# changes. Note the service also caches the file for the lifetime of the
+# process, so a restart is required either way.
+podAnnotations:
+  bento.ca/services-json-revision: "1"
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: BENTO_DEBUG
+    value: "False"
+  - name: LOG_LEVEL
+    value: "info"
+
+  # Registry contents, mounted from the configMap below
+  - name: BENTO_SERVICES
+    value: "/etc/bento/bento_services.json"
+
+  # Bases for the {BENTO_PUBLIC_URL} / {BENTO_ADMIN_PUBLIC_URL} placeholders
+  # used in url_template
+  - name: BENTO_PUBLIC_URL
+    value: "https://bento.k8s.local"
+  - name: BENTO_ADMIN_PUBLIC_URL
+    value: "https://portal.bento.k8s.local"
+  - name: SERVICE_URL_BASE_PATH
+    value: "https://bento.k8s.local/api/service-registry"
+
+  - name: SERVICE_ID
+    value: "ca.c3g.bento:service-registry"
+  # Timeout, in seconds, for contacting the services in bento_services.json
+  - name: CONTACT_TIMEOUT
+    value: "10"
+
+  # LOCAL DEV ONLY. The registry fetches /service-info from every service over
+  # its public URL. Pods do not trust the cert-manager dev CA
+  # (scripts/trust-root-ca.bash only installs it on the host), so those
+  # fetches would fail certificate verification. Set back to "True" in any
+  # cluster with a real CA. See docs/dns-and-tls-local-vs-prod.md.
+  - name: BENTO_VALIDATE_SSL
+    value: "False"
+
+  # Semicolon-separated. "*" is unusable here because the app sets
+  # allow_credentials=True.
+  - name: CORS_ORIGINS
+    value: "https://bento.k8s.local;https://portal.bento.k8s.local"
+
+  - name: BENTO_AUTHZ_ENABLED
+    value: "True"
+  # In-cluster URL, avoids a gateway round trip for token validation
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc:5000"
+
+configMap:
+  enabled: true
+  data:
+    # Services registered on this domain, following the bento_services.json
+    # schema. Entries without a service_kind (e.g. the gateway) and entries
+    # with "disabled": true are filtered out by the registry. Add services
+    # here as they land in deployment/services/.
+    #
+    # service_kind does not match the k8s hostname (authorization vs authz,
+    # metadata vs katsu), so url_template uses literal hostnames rather than
+    # {service_kind} interpolation.
+    bento_services.json: |
+      {
+        "service-registry": {
+          "service_kind": "service-registry",
+          "url_template": "{BENTO_PUBLIC_URL}/api/service-registry",
+          "repository": "git@github.com:bento-platform/bento_service_registry"
+        },
+        "authz": {
+          "service_kind": "authorization",
+          "url_template": "https://authz.bento.k8s.local",
+          "repository": "git@github.com:bento-platform/bento_authorization_service.git"
+        },
+        "katsu": {
+          "service_kind": "metadata",
+          "url_template": "https://katsu.bento.k8s.local",
+          "repository": "git@github.com:bento-platform/katsu.git"
+        },
+        "web": {
+          "service_kind": "web",
+          "url_template": "{BENTO_ADMIN_PUBLIC_URL}",
+          "repository": "git@github.com:bento-platform/bento_web.git"
+        },
+        "public": {
+          "service_kind": "public",
+          "url_template": "{BENTO_PUBLIC_URL}",
+          "repository": "git@github.com:bento-platform/bento_public.git"
+        }
+      }
+
+# Mounted as a directory rather than with subPath, so the file tracks
+# ConfigMap updates
+volumes:
+  - name: bento-services
+    configMap:
+      name: service-registry-stateless-svc
+volumeMounts:
+  - name: bento-services
+    mountPath: /etc/bento
+    readOnly: true
+
+# Path routing on the apex listener. Required: bento_web looks the registry
+# up at the hardcoded path ${BENTO_PUBLIC_URL}/api/service-registry.
+# The Chart does not strip the prefix, hence the URLRewrite filter.
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: root
+      namespace: envoy-gateway-system
+  hostnames:
+    - bento.k8s.local
+# Leave backendRefs to be templated by the Helm Chart
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/service-registry
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+
+# Secondary entry point: subdomain routing, following the authz/katsu
+# convention. extraManifests is a raw passthrough with no templating, so
+# names are spelled out. The release name comes from this directory's name,
+# so the Service is service-registry-stateless-svc.
+extraManifests:
+  - apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: service-registry-subdomain
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: gateway
+          sectionName: default
+          namespace: envoy-gateway-system
+      hostnames:
+        - service-registry.bento.k8s.local
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          backendRefs:
+            - group: ""
+              kind: Service
+              name: service-registry-stateless-svc
+              port: 5000
+              weight: 1

@@ -1,13 +1,22 @@
 ---
+# The gateway-helm Chart ships no GatewayClass, so it is declared here.
+# controllerName binds the class to Envoy Gateway; the name is arbitrary.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-gateway
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: gateway
-  namespace: gateway
+  namespace: envoy-gateway-system
   annotations:
     cert-manager.io/cluster-issuer: dev-ca-issuer
 spec:
-  gatewayClassName: cloud-provider-kind
+  gatewayClassName: envoy-gateway
   listeners:
     - name: default
       hostname: "*.bento.k8s.local"

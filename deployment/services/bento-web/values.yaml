@@ -28,7 +28,7 @@ httpRoute:
       kind: Gateway
       name: gateway
       sectionName: default
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames:
     - portal.bento.k8s.local
   rules:

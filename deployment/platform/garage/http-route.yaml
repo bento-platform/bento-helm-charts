@@ -9,7 +9,7 @@ spec:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames: ["garage.bento.k8s.local"]
   rules:
     - matches:

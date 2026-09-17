@@ -9,7 +9,7 @@ spec:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames: ["argocd.bento.k8s.local"]
   rules:
     - matches:
@@ -33,7 +33,7 @@ spec:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames: ["auth.bento.k8s.local"]
   rules:
     - matches:
