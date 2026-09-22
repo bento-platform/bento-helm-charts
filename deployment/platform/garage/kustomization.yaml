@@ -10,5 +10,7 @@ resources:
   - drop-box-bucket-key.yaml
   - drs-litestream-bucket.yaml
   - drs-litestream-bucket-key.yaml
+  - wes-litestream-bucket.yaml
+  - wes-litestream-bucket-key.yaml
   - http-route.yaml
   - admin-token-cr.yaml
