@@ -48,7 +48,7 @@ httpRoute:
       kind: Gateway
       name: gateway
       sectionName: root
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames:
     - bento.k8s.local
   rules:
