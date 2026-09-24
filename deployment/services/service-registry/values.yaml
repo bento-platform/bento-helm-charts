@@ -11,7 +11,7 @@ service:
 # changes. Note the service also caches the file for the lifetime of the
 # process, so a restart is required either way.
 podAnnotations:
-  bento.ca/services-json-revision: "1"
+  bento.ca/services-json-revision: "2"
 
 env:
   - name: BENTO_UID
@@ -69,25 +69,38 @@ configMap:
     # with "disabled": true are filtered out by the registry. Add services
     # here as they land in deployment/services/.
     #
-    # service_kind does not match the k8s hostname (authorization vs authz,
-    # metadata vs katsu), so url_template uses literal hostnames rather than
-    # {service_kind} interpolation.
+    # APIs are routed at {BENTO_PUBLIC_URL}/api/{service_kind}.
     bento_services.json: |
       {
         "service-registry": {
           "service_kind": "service-registry",
-          "url_template": "{BENTO_PUBLIC_URL}/api/service-registry",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
           "repository": "git@github.com:bento-platform/bento_service_registry"
         },
         "authz": {
           "service_kind": "authorization",
-          "url_template": "https://authz.bento.k8s.local",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
           "repository": "git@github.com:bento-platform/bento_authorization_service.git"
         },
         "katsu": {
           "service_kind": "metadata",
-          "url_template": "https://katsu.bento.k8s.local",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
           "repository": "git@github.com:bento-platform/katsu.git"
+        },
+        "drop-box": {
+          "service_kind": "drop-box",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+          "repository": "git@github.com:bento-platform/bento_drop_box_service.git"
+        },
+        "drs": {
+          "service_kind": "drs",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+          "repository": "git@github.com:bento-platform/bento_drs.git"
+        },
+        "wes": {
+          "service_kind": "wes",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+          "repository": "git@github.com:bento-platform/bento_wes.git"
         },
         "web": {
           "service_kind": "web",

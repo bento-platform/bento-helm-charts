@@ -8,7 +8,7 @@ service:
 
 env:
   - name: KATSU_ALLOWED_HOSTS
-    value: "bento.k8s.local,katsu.bento.k8s.local,localhost"
+    value: "bento.k8s.local,localhost"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
@@ -59,19 +59,27 @@ volumeMounts:
     subPath: katsu-config
     readOnly: true
 
+# Path routing on the apex listener, at the metadata service_kind. The Chart
+# does not strip the prefix, hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - katsu.bento.k8s.local
+    - bento.k8s.local
 # Leave backendRefs to be templated by the Helm Chart
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/metadata
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /

@@ -21,21 +21,29 @@ env:
   - name: CORS_ORIGINS
     value: "*"
   - name: SERVICE_URL_BASE_PATH
-    value: "/"
+    value: "https://bento.k8s.local/api/authz"
 
+# Path routing on the apex listener. The Chart does not strip the prefix,
+# hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - authz.bento.k8s.local
+    - bento.k8s.local
 # Leave backendRefs to be templated by the Helm Chart
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/authorization
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /

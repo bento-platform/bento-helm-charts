@@ -7,7 +7,7 @@ service:
 
 env:
   - name: SERVICE_URL_BASE_PATH
-    value: "https://drop-box.bento.k8s.local"
+    value: "https://bento.k8s.local/api/drop-box"
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: OPENID_CONFIG_URL
@@ -43,18 +43,26 @@ env:
   - name: S3_VALIDATE_SSL
     value: "false"
 
+# Path routing on the apex listener. The Chart does not strip the prefix,
+# hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - drop-box.bento.k8s.local
+    - bento.k8s.local
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/drop-box
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
