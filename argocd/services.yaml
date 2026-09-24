@@ -15,7 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        revision: 53-featargocdservices-include-files-management-apps-in-the-services-layer
+        revision: HEAD
         files:
           - path: deployment/services/*/.argocd-app.yaml
   template:
@@ -27,7 +27,7 @@ spec:
 
       sources:
         - repoURL: https://github.com/bento-platform/bento-helm-charts.git
-          targetRevision: 53-featargocdservices-include-files-management-apps-in-the-services-layer
+          targetRevision: HEAD
           ref: values
 
         - chart: "{{.chart.name}}"

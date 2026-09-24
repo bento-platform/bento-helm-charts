@@ -18,7 +18,7 @@ spec:
   source:
     path: deployment/infra/
     repoURL: https://github.com/bento-platform/bento-helm-charts.git
-    targetRevision: 53-featargocdservices-include-files-management-apps-in-the-services-layer
+    targetRevision: HEAD
 
   syncPolicy:
     automated:

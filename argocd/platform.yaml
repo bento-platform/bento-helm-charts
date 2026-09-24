@@ -15,7 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        revision: 53-featargocdservices-include-files-management-apps-in-the-services-layer
+        revision: HEAD
         directories:
           - path: deployment/platform/*
   template:
@@ -25,7 +25,7 @@ spec:
       project: "default"
       source:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        targetRevision: 53-featargocdservices-include-files-management-apps-in-the-services-layer
+        targetRevision: HEAD
         path: "{{.path.path}}"
       destination:
         server: https://kubernetes.default.svc
