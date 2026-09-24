@@ -33,7 +33,7 @@ env:
   - name: DJANGO_SETTINGS_MODULE
     value: "chord_metadata_service.metadata.settings"
   - name: BENTO_AUTHZ_ENABLED
-    value: "False"
+    value: "True"
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: CORS_ORIGINS
