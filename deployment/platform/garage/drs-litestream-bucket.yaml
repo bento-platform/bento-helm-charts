@@ -1,0 +1,11 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageBucket
+metadata:
+  name: drs-litestream
+  namespace: default
+spec:
+  clusterRef:
+    name: garage
+  quotas:
+    maxSize: 5Gi

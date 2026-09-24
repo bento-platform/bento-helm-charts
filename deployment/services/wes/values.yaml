@@ -40,11 +40,11 @@ env:
   - name: BENTO_URL
     value: "https://portal.bento.k8s.local/"
   - name: CELERY_RESULT_BACKEND
-    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+    value: "redis://valkey.default.svc.cluster.local:6379"
   - name: CELERY_BROKER_URL
-    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+    value: "redis://valkey.default.svc.cluster.local:6379"
   - name: BENTO_EVENT_REDIS_URL
-    value: "redis://valkey-primary.default.svc.cluster.local:6379"
+    value: "redis://valkey.default.svc.cluster.local:6379"
   - name: CELERY_DEBUG
     value: "false"
   - name: SERVICE_ID
