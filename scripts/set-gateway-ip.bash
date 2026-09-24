@@ -1,6 +1,6 @@
 HOST_IP=""
 GW_PORT="443"
-GW_ADDR=$(kubectl get gateway -n gateway gateway -o jsonpath='{.status.addresses[0].value}')
+GW_ADDR=$(kubectl get gateway -n envoy-gateway-system gateway -o jsonpath='{.status.addresses[0].value}')
 
 case "$(uname -s)" in
     Darwin)
@@ -34,6 +34,7 @@ echo "Add the following entries to your /etc/hosts file:"
 echo ""
 
 cat <<EOF
+${HOST_IP}    bento.k8s.local
 ${HOST_IP}    argocd.bento.k8s.local
 ${HOST_IP}    portal.bento.k8s.local
 ${HOST_IP}    public.bento.k8s.local
@@ -41,4 +42,6 @@ ${HOST_IP}    auth.bento.k8s.local
 ${HOST_IP}    garage.bento.k8s.local
 ${HOST_IP}    cbioportal.bento.k8s.local
 ${HOST_IP}    katsu.bento.k8s.local
+${HOST_IP}    authz.bento.k8s.local
+${HOST_IP}    service-registry.bento.k8s.local
 EOF

@@ -1,13 +1,14 @@
 image:
   repository: ghcr.io/bento-platform/bento_drop_box_service
-  tag: "2.1.4"
+  # tag: "2.1.4"
+  tag: "pr-116"
 
 service:
   port: 5000
 
 env:
   - name: SERVICE_URL_BASE_PATH
-    value: "https://drop-box.bento.k8s.local"
+    value: "https://bento.k8s.local/api/drop-box"
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: OPENID_CONFIG_URL
@@ -16,45 +17,51 @@ env:
     value: "https://portal.bento.k8s.local"
   - name: LOG_LEVEL
     value: "info"
-  - name: S3_ENDPOINT
+  - name: AWS_ENDPOINT_URL_S3
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: endpoint
-  - name: S3_BUCKET
-    value: "drop-box"
-  - name: S3_REGION_NAME
+  - name: AWS_DEFAULT_REGION
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: region
-  - name: S3_ACCESS_KEY
+  - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: access-key-id
-  - name: S3_SECRET_KEY
+  - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: secret-access-key
-  - name: S3_USE_HTTPS
-    value: "false"
+  # Non-standard S3 env vars specific to Drop-Box
   - name: S3_VALIDATE_SSL
-    value: "false"
-
+    value: "False"
+  - name: S3_BUCKET
+    value: "drop-box"
+# Path routing on the apex listener. The Chart does not strip the prefix,
+# hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
-      namespace: gateway
+      sectionName: root
+      namespace: envoy-gateway-system
   hostnames:
-    - drop-box.bento.k8s.local
+    - bento.k8s.local
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/drop-box
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /

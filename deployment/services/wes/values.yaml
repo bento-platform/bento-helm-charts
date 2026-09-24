@@ -56,13 +56,13 @@ env:
   - name: SERVICE_TEMP
     value: "/wes/tmp"
   - name: SERVICE_BASE_URL
-    value: "https://wes.bento.k8s.local"
+    value: "https://bento.k8s.local/api/wes"
   - name: WOM_TOOL_LOCATION
     value: "/womtool.jar"
   - name: WORKFLOW_HOST_ALLOW_LIST
     value: ""
   - name: SERVICE_REGISTRY_URL
-    value: "http://dummy"
+    value: "http://service-registry-stateless-svc:5000"
   - name: INTERNAL_PORT
     value: "5000"
   - name: WORKFLOW_TIMEOUT
@@ -110,19 +110,27 @@ startupProbe:
   failureThreshold: 30
   periodSeconds: 5
 
+# Path routing on the apex listener. The Chart does not strip the prefix,
+# hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - wes.bento.k8s.local
+    - bento.k8s.local
 # Leave backendRefs to be templated by the Helm Chart
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/wes
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /

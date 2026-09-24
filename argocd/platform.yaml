@@ -15,7 +15,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        revision: HEAD
+        revision: feat/services/service-registry
         directories:
           - path: deployment/platform/*
   template:
@@ -25,7 +25,7 @@ spec:
       project: "default"
       source:
         repoURL: https://github.com/bento-platform/bento-helm-charts.git
-        targetRevision: HEAD
+        targetRevision: feat/services/service-registry
         path: "{{.path.path}}"
       destination:
         server: https://kubernetes.default.svc

@@ -6,3 +6,4 @@ resources:
   - gateway.yaml
   - gateway-class.yaml
   - http-routes.yaml
+  - cors-policy.yaml
