@@ -117,7 +117,7 @@ httpRoute:
       kind: Gateway
       name: gateway
       sectionName: default
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames:
     - wes.bento.k8s.local
 # Leave backendRefs to be templated by the Helm Chart
