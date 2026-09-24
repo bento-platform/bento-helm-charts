@@ -60,6 +60,8 @@ env:
   # In-cluster URL, avoids a gateway round trip for token validation
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc:5000"
+  - name: CORS_ORIGINS
+    value: "https://bento.k8s.local;https://portal.bento.k8s.local"
 
 configMap:
   enabled: true
