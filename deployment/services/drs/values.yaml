@@ -80,7 +80,7 @@ httpRoute:
       kind: Gateway
       name: gateway
       sectionName: default
-      namespace: gateway
+      namespace: envoy-gateway-system
   hostnames:
     - drs.bento.k8s.local
   rules:
