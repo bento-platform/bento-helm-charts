@@ -22,8 +22,6 @@ env:
       secretKeyRef:
         name: drop-box-key
         key: endpoint
-  - name: AWS_S3_BUCKET
-    value: "drop-box"
   - name: AWS_S3_REGION_NAME
     valueFrom:
       secretKeyRef:
@@ -39,9 +37,11 @@ env:
       secretKeyRef:
         name: drop-box-key
         key: secret-access-key
+  # Non-standard S3 env vars specific to Drop-Box
   - name: S3_VALIDATE_SSL
     value: "False"
-
+  - name: S3_BUCKET
+    value: "drop-box"
 # Path routing on the apex listener. The Chart does not strip the prefix,
 # hence the URLRewrite filter.
 httpRoute:
