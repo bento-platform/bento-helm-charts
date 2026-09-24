@@ -17,22 +17,22 @@ env:
     value: "https://portal.bento.k8s.local"
   - name: LOG_LEVEL
     value: "info"
-  - name: AWS_S3_ENDPOINT
+  - name: AWS_ENDPOINT_URL_S3
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: endpoint
-  - name: AWS_S3_REGION_NAME
+  - name: AWS_DEFAULT_REGION
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: region
-  - name: AWS_S3_ACCESS_KEY
+  - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
         name: drop-box-key
         key: access-key-id
-  - name: AWS_S3_SECRET_KEY
+  - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         name: drop-box-key
