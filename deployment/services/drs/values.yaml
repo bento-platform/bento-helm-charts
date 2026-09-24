@@ -1,0 +1,90 @@
+image:
+  repository: ghcr.io/bento-platform/bento_drs
+  tag: "0.21.3"
+
+service:
+  port: 5000
+  targetPort: 5000
+
+persistence:
+  mountPath: /drs/data
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi
+
+sqlite:
+  databasePath: /drs/data/db.sqlite3
+
+litestream:
+  replica:
+    url: "s3://drs-litestream/db"
+    endpoint: "http://garage.default.svc.cluster.local:3900"
+    forcePathStyle: true
+    region: "garage"
+  credentials:
+    existingSecret: "drs-litestream-creds"
+
+# Scratch space for in-progress file ingestion, ephemeral by design so uses emptyDir
+volumes:
+  - name: drs-tmp
+    emptyDir: {}
+volumeMounts:
+  - name: drs-tmp
+    mountPath: /drs/tmp
+
+env:
+  - name: DATABASE
+    value: "/drs/data"
+  - name: DRS_INGEST_TMP_DIR
+    value: "/drs/tmp"
+  - name: SERVICE_BASE_URL
+    value: "https://drs.bento.k8s.local"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
+  - name: CORS_ORIGINS
+    value: "https://portal.bento.k8s.local"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: S3_ENDPOINT
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: endpoint
+  - name: S3_BUCKET
+    value: "drs"
+  - name: S3_REGION_NAME
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: region
+  - name: S3_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: access-key-id
+  - name: S3_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: drs-key
+        key: secret-access-key
+  - name: S3_USE_HTTPS
+    value: "false"
+  - name: S3_VALIDATE_SSL
+    value: "false"
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+      namespace: envoy-gateway-system
+  hostnames:
+    - drs.bento.k8s.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /

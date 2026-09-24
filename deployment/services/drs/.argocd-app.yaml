@@ -1,0 +1,4 @@
+chart:
+  name: litestream-svc
+  repoURL: https://bento-platform.github.io/bento-helm-charts
+  version: 0.1.0
