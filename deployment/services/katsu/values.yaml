@@ -8,7 +8,7 @@ service:
 
 env:
   - name: KATSU_ALLOWED_HOSTS
-    value: "katsu.bento.k8s.local,localhost"
+    value: "bento.k8s.local,katsu.bento.k8s.local,localhost"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
