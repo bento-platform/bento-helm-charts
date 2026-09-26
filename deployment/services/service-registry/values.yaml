@@ -43,10 +43,9 @@ env:
     value: "10"
 
   # LOCAL DEV ONLY. The registry fetches /service-info from every service over
-  # its public URL. Pods do not trust the cert-manager dev CA
-  # (scripts/trust-root-ca.bash only installs it on the host), so those
-  # fetches would fail certificate verification. Set back to "True" in any
-  # cluster with a real CA. See docs/dns-and-tls-local-vs-prod.md.
+  # its public URL. Pods do not trust the cert-manager dev CA (yet).
+  # TODO: see how we can include the CA cert in pods,
+  # since it is already in-cluster
   - name: BENTO_VALIDATE_SSL
     value: "False"
 

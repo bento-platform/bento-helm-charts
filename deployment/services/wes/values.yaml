@@ -75,6 +75,11 @@ env:
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: BENTO_OPENID_CONFIG_URL
     value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+  # LOCAL DEV ONLY
+  # TODO: see how we can include the CA cert in pods,
+  # since it is already in-cluster
+  - name: BENTO_VALIDATE_SSL
+    value: "False"
   - name: WES_CLIENT_ID
     valueFrom:
       secretKeyRef:
