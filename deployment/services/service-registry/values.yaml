@@ -19,9 +19,9 @@ env:
   - name: INTERNAL_PORT
     value: "5000"
   - name: BENTO_DEBUG
-    value: "True"
+    value: "False"
   - name: LOG_LEVEL
-    value: "debug"
+    value: "info"
 
   # Registry contents, mounted from the configMap below
   - name: BENTO_SERVICES

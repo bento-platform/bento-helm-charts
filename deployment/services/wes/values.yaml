@@ -60,7 +60,7 @@ env:
   - name: WOM_TOOL_LOCATION
     value: "/womtool.jar"
   - name: WORKFLOW_HOST_ALLOW_LIST
-    value: ""
+    value: "https://bento.k8s.local,https://portal.bento.k8s.local,katsu-stateless-svc:8000"
   - name: SERVICE_REGISTRY_URL
     value: "http://service-registry-stateless-svc:5000"
   - name: INTERNAL_PORT
@@ -68,7 +68,7 @@ env:
   - name: WORKFLOW_TIMEOUT
     value: "300"
   - name: CORS_ORIGINS
-    value: "https://portal.bento.k8s.local"
+    value: "https://portal.bento.k8s.local;https://bento.k8s.local"
   - name: BENTO_AUTHZ_ENABLED
     value: "True"
   - name: BENTO_AUTHZ_SERVICE_URL

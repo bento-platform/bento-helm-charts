@@ -1,21 +1,34 @@
 ---
 image:
   repository: ghcr.io/bento-platform/katsu
-  tag: "13.2.0"
+  tag: "15.1.0"
 
 service:
   port: 8000
 
 env:
-  - name: KATSU_ALLOWED_HOSTS
-    value: "bento.k8s.local,localhost"
+  - name: BENTO_UID
+    value: "1000"
+  - name: CHORD_URL
+    value: "https://portal.bento.k8s.local"
+  - name: CHORD_DEBUG
+    value: "False"
+  - name: CHORD_METADATA_SUB_PATH
+    value: "/api/metadata"
+  - name: INTERNAL_PORT
+    value: "8000"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
         name: katsu-db-superuser
         key: host
+  - name: POSTGRES_PORT
+    valueFrom:
+      secretKeyRef:
+        name: katsu-db-superuser
+        key: port
   - name: POSTGRES_DATABASE
-    value: app
+    value: "app"
   - name: POSTGRES_USER
     valueFrom:
       secretKeyRef:
@@ -26,12 +39,26 @@ env:
       secretKeyRef:
         name: katsu-db-superuser
         key: password
-  - name: CHORD_DEBUG
-    value: "False"
+  - name: DRS_URL
+    value: "http://drs-litestream-svc:5000"
   - name: SERVICE_TEMP
     value: "/app/tmp"
+  # Django SECRET_KEY. Not committed, create it once per cluster:
+  #   kubectl create secret generic katsu-secret -n default \
+  #     --from-literal=secret-key="$(openssl rand -base64 48)"
+  - name: SERVICE_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: katsu-secret
+        key: secret-key
+  - name: SERVICE_URL_BASE_PATH
+    value: "https://bento.k8s.local/api/metadata"
   - name: DJANGO_SETTINGS_MODULE
     value: "chord_metadata_service.metadata.settings"
+  - name: BENTOV2_PORTAL_DOMAIN
+    value: "portal.bento.k8s.local"
+  - name: KATSU_ALLOWED_HOSTS
+    value: "bento.k8s.local,katsu-stateless-svc,katsu-stateless-svc.default.svc.cluster.local,localhost"
   - name: BENTO_AUTHZ_ENABLED
     value: "True"
   - name: BENTO_AUTHZ_SERVICE_URL
@@ -75,7 +102,7 @@ httpRoute:
       namespace: envoy-gateway-system
   hostnames:
     - bento.k8s.local
-# Leave backendRefs to be templated by the Helm Chart
+  # Leave backendRefs to be templated by the Helm Chart
   rules:
     - matches:
         - path:
