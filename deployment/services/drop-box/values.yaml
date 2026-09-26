@@ -12,7 +12,7 @@ env:
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: OPENID_CONFIG_URL
-    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+    value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/bentov2/.well-known/openid-configuration"
   - name: CORS_ORIGINS
     value: "https://portal.bento.k8s.local"
   - name: LOG_LEVEL
