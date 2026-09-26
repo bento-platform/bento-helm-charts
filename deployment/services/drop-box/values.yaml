@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/bento-platform/bento_drop_box_service
-  # tag: "2.1.4"
+  # tag: "2.1.6"
   tag: "pr-116"
 
 service:
