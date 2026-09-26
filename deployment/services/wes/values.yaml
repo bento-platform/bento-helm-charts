@@ -82,10 +82,11 @@ env:
   - name: BENTO_VALIDATE_SSL
     value: "False"
   - name: WES_CLIENT_ID
-    valueFrom:
-      secretKeyRef:
-        name: wes-oidc-secret
-        key: id
+    value: "wes"  # TODO: see why secretRef value is wrong
+    # valueFrom:
+    #   secretKeyRef:
+    #     name: wes-oidc-secret
+    #     key: id
   - name: WES_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
