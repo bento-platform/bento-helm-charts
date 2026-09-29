@@ -37,11 +37,7 @@ cat <<EOF
 ${HOST_IP}    bento.k8s.local
 ${HOST_IP}    argocd.bento.k8s.local
 ${HOST_IP}    portal.bento.k8s.local
-${HOST_IP}    public.bento.k8s.local
 ${HOST_IP}    auth.bento.k8s.local
 ${HOST_IP}    garage.bento.k8s.local
 ${HOST_IP}    cbioportal.bento.k8s.local
-${HOST_IP}    katsu.bento.k8s.local
-${HOST_IP}    authz.bento.k8s.local
-${HOST_IP}    service-registry.bento.k8s.local
 EOF
