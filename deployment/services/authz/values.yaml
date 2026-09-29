@@ -14,22 +14,36 @@ env:
         key: uri
   - name: INTERNAL_PORT
     value: "5000"
-  # LOCAL DEV ONLY. The IdP manager verifies TLS unless debug is on (it does
-  # not read BENTO_VALIDATE_SSL), and pods do not trust the cert-manager dev
-  # CA, so fetching the OpenID config from auth.bento.k8s.local fails and
-  # every /policy/evaluate returns 500. Set back to "False" in any cluster
-  # with a real CA. See docs/dns-and-tls-local-vs-prod.md.
+  # The IdP manager verifies TLS unless debug is on (it does not read
+  # BENTO_VALIDATE_SSL). The dev CA is trusted through the bundle below.
   - name: BENTO_DEBUG
-    value: "True"
+    value: "False"
   - name: OPENID_CONFIG_URL
     value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
   - name: CORS_ORIGINS
     value: "*"
   - name: SERVICE_URL_BASE_PATH
     value: "https://bento.k8s.local/api/authorization"
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
 
-# Path routing on the apex listener. The Chart does not strip the prefix,
-# hence the URLRewrite filter.
+# LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+# (deployment/platform/cert-manager/trust-bundle.yaml)
+volumes:
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
+volumeMounts:
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
+
 httpRoute:
   enabled: true
   parentRefs:

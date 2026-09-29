@@ -12,7 +12,7 @@ env:
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: OPENID_CONFIG_URL
-    value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/bentov2/.well-known/openid-configuration"
+    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
   - name: CORS_ORIGINS
     value: "https://portal.bento.k8s.local"
   - name: LOG_LEVEL
@@ -42,8 +42,26 @@ env:
     value: "False"
   - name: S3_BUCKET
     value: "drop-box"
-# Path routing on the apex listener. The Chart does not strip the prefix,
-# hence the URLRewrite filter.
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+
+# LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+# (deployment/platform/cert-manager/trust-bundle.yaml)
+volumes:
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
+volumeMounts:
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
+
 httpRoute:
   enabled: true
   parentRefs:

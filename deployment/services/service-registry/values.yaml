@@ -43,11 +43,14 @@ env:
     value: "10"
 
   # LOCAL DEV ONLY. The registry fetches /service-info from every service over
-  # its public URL. Pods do not trust the cert-manager dev CA (yet).
-  # TODO: see how we can include the CA cert in pods,
-  # since it is already in-cluster
-  - name: BENTO_VALIDATE_SSL
-    value: "False"
+  # its public URL. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
 
   # Semicolon-separated. "*" is unusable here because the app sets
   # allow_credentials=True.
@@ -120,9 +123,17 @@ volumes:
   - name: bento-services
     configMap:
       name: service-registry-stateless-svc
+  # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+  # (deployment/platform/cert-manager/trust-bundle.yaml)
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
 volumeMounts:
   - name: bento-services
     mountPath: /etc/bento
+    readOnly: true
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
     readOnly: true
 
 # Path routing on the apex listener. Required: bento_web looks the registry

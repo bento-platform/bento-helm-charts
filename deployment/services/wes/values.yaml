@@ -30,25 +30,36 @@ litestream:
 volumes:
   - name: wes-tmp
     emptyDir: {}
+  # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+  # (deployment/platform/cert-manager/trust-bundle.yaml)
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
 volumeMounts:
   - name: wes-tmp
     mountPath: /wes/tmp
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
 
 env:
   - name: BENTO_UID
     value: "1000"
   - name: BENTO_URL
     value: "https://portal.bento.k8s.local/"
+
   - name: CELERY_RESULT_BACKEND
     value: "redis://valkey.default.svc.cluster.local:6379"
   - name: CELERY_BROKER_URL
     value: "redis://valkey.default.svc.cluster.local:6379"
+  - name: CELERY_DEBUG
+    value: "False"
+
   - name: BENTO_EVENT_REDIS_URL
     value: "redis://valkey.default.svc.cluster.local:6379"
-  - name: CELERY_DEBUG
-    value: "True"
+
   - name: BENTO_DEBUG
-    value: "True"
+    value: "False"
   - name: SERVICE_ID
     value: ""
   - name: SERVICE_DATA
@@ -58,7 +69,7 @@ env:
   - name: SERVICE_TEMP
     value: "/wes/tmp"
   - name: SERVICE_BASE_URL
-    value: "https://bento.k8s.local/api/wes"
+    value: "https://bento.k8s.local/api/wes/"
   - name: WOM_TOOL_LOCATION
     value: "/womtool.jar"
   - name: WORKFLOW_HOST_ALLOW_LIST
@@ -76,13 +87,16 @@ env:
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: BENTO_OPENID_CONFIG_URL
-    # value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
-    value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/bentov2/.well-known/openid-configuration"
-  # LOCAL DEV ONLY
-  # TODO: see how we can include the CA cert in pods,
-  # since it is already in-cluster
-  - name: BENTO_VALIDATE_SSL
-    value: "False"
+    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted above. CURL_CA_BUNDLE covers curl in workflow tasks.
+  # See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
   - name: WES_CLIENT_ID
     value: "wes"  # TODO: see why secretRef value is wrong
     # valueFrom:

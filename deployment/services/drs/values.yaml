@@ -29,9 +29,17 @@ litestream:
 volumes:
   - name: drs-tmp
     emptyDir: {}
+  # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+  # (deployment/platform/cert-manager/trust-bundle.yaml)
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
 volumeMounts:
   - name: drs-tmp
     mountPath: /drs/tmp
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
 
 env:
   - name: DATABASE
@@ -72,6 +80,14 @@ env:
     value: "false"
   - name: S3_VALIDATE_SSL
     value: "false"
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted above. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
 
 # Path routing on the apex listener. The Chart does not strip the prefix,
 # hence the URLRewrite filter.
