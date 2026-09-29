@@ -43,6 +43,7 @@ env:
     value: "http://drs-litestream-svc:5000"
   - name: SERVICE_TEMP
     value: "/app/tmp"
+  # TODO: document this and find a way to automate
   # Django SECRET_KEY. Not committed, create it once per cluster:
   #   kubectl create secret generic katsu-secret -n default \
   #     --from-literal=secret-key="$(openssl rand -base64 48)"

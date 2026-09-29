@@ -72,8 +72,11 @@ env:
     value: "https://bento.k8s.local/api/wes/"
   - name: WOM_TOOL_LOCATION
     value: "/womtool.jar"
+  # Hostnames only (no scheme/port): compared against the workflow URL's host.
+  # A non-matching host silently skips the WDL download, and the run later
+  # fails womtool validation with only the file path in stderr.
   - name: WORKFLOW_HOST_ALLOW_LIST
-    value: "https://bento.k8s.local,https://portal.bento.k8s.local,katsu-stateless-svc:8000"
+    value: "bento.k8s.local,portal.bento.k8s.local"
   - name: SERVICE_REGISTRY_URL
     value: "http://service-registry-stateless-svc:5000"
   - name: INTERNAL_PORT
