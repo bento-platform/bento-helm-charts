@@ -1,21 +1,34 @@
 ---
 image:
   repository: ghcr.io/bento-platform/katsu
-  tag: "13.2.0"
+  tag: "15.1.0"
 
 service:
   port: 8000
 
 env:
-  - name: KATSU_ALLOWED_HOSTS
-    value: "katsu.bento.k8s.local,localhost"
+  - name: BENTO_UID
+    value: "1000"
+  - name: CHORD_URL
+    value: "https://portal.bento.k8s.local"
+  - name: CHORD_DEBUG
+    value: "False"
+  - name: CHORD_METADATA_SUB_PATH
+    value: "/api/metadata"
+  - name: INTERNAL_PORT
+    value: "8000"
   - name: POSTGRES_HOST
     valueFrom:
       secretKeyRef:
         name: katsu-db-superuser
         key: host
+  - name: POSTGRES_PORT
+    valueFrom:
+      secretKeyRef:
+        name: katsu-db-superuser
+        key: port
   - name: POSTGRES_DATABASE
-    value: app
+    value: "app"
   - name: POSTGRES_USER
     valueFrom:
       secretKeyRef:
@@ -26,14 +39,44 @@ env:
       secretKeyRef:
         name: katsu-db-superuser
         key: password
-  - name: CHORD_DEBUG
-    value: "False"
+  - name: DRS_URL
+    value: "http://drs-litestream-svc:5000"
   - name: SERVICE_TEMP
     value: "/app/tmp"
+
+  - name: SERVICE_SECRET_KEY
+    # IMPORTANT: use secret refs for prod
+    # Never use clear values for real deployments
+    value: "katsu-secret-CHANGE-ME"
+    # E.g. create to create a random secret and reference it:
+    #   kubectl create secret generic katsu-secret -n default \
+    #     --from-literal=secret-key="$(openssl rand -base64 48)"
+    # valueFrom:
+    #   secretKeyRef:
+    #     name: katsu-secret
+    #     key: secret-key
+  - name: SERVICE_URL_BASE_PATH
+    value: "https://bento.k8s.local/api/metadata"
   - name: DJANGO_SETTINGS_MODULE
     value: "chord_metadata_service.metadata.settings"
+  - name: BENTOV2_PORTAL_DOMAIN
+    value: "portal.bento.k8s.local"
+  - name: KATSU_ALLOWED_HOSTS
+    value: "bento.k8s.local,katsu-stateless-svc,katsu-stateless-svc.default.svc.cluster.local,localhost"
   - name: BENTO_AUTHZ_ENABLED
-    value: "False"
+    value: "True"
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
+  - name: CORS_ORIGINS
+    value: "https://bento.k8s.local;https://portal.bento.k8s.local"
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
 
 configMap:
   enabled: true
@@ -53,25 +96,41 @@ volumes:
   - name: katsu-config
     configMap:
       name: katsu-stateless-svc
+  # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+  # (deployment/platform/cert-manager/trust-bundle.yaml)
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
 volumeMounts:
   - name: katsu-config
     mountPath: /app/chord_metadata_service/config.json
     subPath: katsu-config
     readOnly: true
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
 
+# Path routing on the apex listener, at the metadata service_kind. The Chart
+# does not strip the prefix, hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - katsu.bento.k8s.local
-# Leave backendRefs to be templated by the Helm Chart
+    - bento.k8s.local
+  # Leave backendRefs to be templated by the Helm Chart
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/metadata
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /

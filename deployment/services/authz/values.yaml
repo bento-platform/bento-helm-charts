@@ -1,7 +1,7 @@
 ---
 image:
   repository: ghcr.io/bento-platform/bento_authorization_service
-  tag: "0.12.1"
+  tag: "0.12.3"
 
 service:
   port: 5000
@@ -14,6 +14,8 @@ env:
         key: uri
   - name: INTERNAL_PORT
     value: "5000"
+  # The IdP manager verifies TLS unless debug is on (it does not read
+  # BENTO_VALIDATE_SSL). The dev CA is trusted through the bundle below.
   - name: BENTO_DEBUG
     value: "False"
   - name: OPENID_CONFIG_URL
@@ -21,7 +23,26 @@ env:
   - name: CORS_ORIGINS
     value: "*"
   - name: SERVICE_URL_BASE_PATH
-    value: "/"
+    value: "https://bento.k8s.local/api/authorization"
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+
+# LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+# (deployment/platform/cert-manager/trust-bundle.yaml)
+volumes:
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
+volumeMounts:
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
 
 httpRoute:
   enabled: true
@@ -29,13 +50,19 @@ httpRoute:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - authz.bento.k8s.local
+    - bento.k8s.local
 # Leave backendRefs to be templated by the Helm Chart
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/authorization
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
