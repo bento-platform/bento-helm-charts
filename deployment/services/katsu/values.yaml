@@ -43,15 +43,18 @@ env:
     value: "http://drs-litestream-svc:5000"
   - name: SERVICE_TEMP
     value: "/app/tmp"
-  # TODO: document this and find a way to automate
-  # Django SECRET_KEY. Not committed, create it once per cluster:
-  #   kubectl create secret generic katsu-secret -n default \
-  #     --from-literal=secret-key="$(openssl rand -base64 48)"
+
   - name: SERVICE_SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: katsu-secret
-        key: secret-key
+    # IMPORTANT: use secret refs for prod
+    # Never use clear values for real deployments
+    value: "katsu-secret-CHANGE-ME"
+    # E.g. create to create a random secret and reference it:
+    #   kubectl create secret generic katsu-secret -n default \
+    #     --from-literal=secret-key="$(openssl rand -base64 48)"
+    # valueFrom:
+    #   secretKeyRef:
+    #     name: katsu-secret
+    #     key: secret-key
   - name: SERVICE_URL_BASE_PATH
     value: "https://bento.k8s.local/api/metadata"
   - name: DJANGO_SETTINGS_MODULE
