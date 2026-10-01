@@ -37,9 +37,8 @@ env:
       secretKeyRef:
         name: drop-box-key
         key: secret-access-key
-  # Non-standard S3 env vars specific to Drop-Box
-  - name: S3_VALIDATE_SSL
-    value: "False"
+  # - name: S3_VALIDATE_SSL
+  #   value: "False"
   - name: S3_BUCKET
     value: "drop-box"
   # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
@@ -49,6 +48,8 @@ env:
   - name: REQUESTS_CA_BUNDLE
     value: "/etc/ssl/bento/ca-certificates.crt"
   - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: AWS_CA_BUNDLE
     value: "/etc/ssl/bento/ca-certificates.crt"
 
 # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager

@@ -1,6 +1,7 @@
 image:
   repository: ghcr.io/bento-platform/bento_drs
-  tag: "0.21.5"
+#  tag: "0.21.5"
+  tag: "pr-193"
 
 service:
   port: 5000
@@ -54,32 +55,30 @@ env:
     value: "https://portal.bento.k8s.local"
   - name: LOG_LEVEL
     value: "info"
-  - name: S3_ENDPOINT
+  - name: S3_BUCKET
+    value: "drs"
+  - name: AWS_ENDPOINT_URL_S3
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: endpoint
-  - name: S3_BUCKET
-    value: "drs"
-  - name: S3_REGION_NAME
+  - name: AWS_DEFAULT_REGION
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: region
-  - name: S3_ACCESS_KEY
+  - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: access-key-id
-  - name: S3_SECRET_KEY
+  - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: secret-access-key
-  - name: S3_USE_HTTPS
-    value: "false"
-  - name: S3_VALIDATE_SSL
-    value: "false"
+  # - name: S3_VALIDATE_SSL
+  #   value: "false"
   # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
   # mounted above. See docs/dns-and-tls-local-vs-prod.md.
   - name: SSL_CERT_FILE
@@ -87,6 +86,8 @@ env:
   - name: REQUESTS_CA_BUNDLE
     value: "/etc/ssl/bento/ca-certificates.crt"
   - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: AWS_CA_BUNDLE
     value: "/etc/ssl/bento/ca-certificates.crt"
 
 # Path routing on the apex listener. The Chart does not strip the prefix,
