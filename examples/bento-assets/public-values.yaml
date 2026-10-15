@@ -1,6 +1,4 @@
 ---
-# TEMPORARY: bento_public with the dev instance's assets, for trying out the stateless-svc chart's `assets` values
-# (>= 0.6.0) from this repo. Remove once deployment/services/public uses `assets`.
 image:
   repository: ghcr.io/bento-platform/bento_public
   tag: "1.1.0"

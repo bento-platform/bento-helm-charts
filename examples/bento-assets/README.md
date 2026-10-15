@@ -4,7 +4,7 @@ Deploying a Bento service with its instance assets (branding, translations, conf
 [bento_assets](https://github.com/bento-platform/bento_assets) image, using the `assets` values of the `stateless-svc`
 Helm chart (>= 0.6.0).
 
-## How it works
+## Overview
 
 Each Bento instance has its own assets image, `ghcr.io/bento-platform/bento-assets-<instance>:<version>`, whose
 entrypoint copies a service's files to the paths the service reads them from (see the image's `manifest.json`).
@@ -18,6 +18,10 @@ With `assets.enabled`, the chart:
    directory is mounted at `mountPath` instead.
 
 The init container runs for every new pod, so bumping `assets.image.tag` rolls out the new assets.
+
+> [!WARNING]
+> Using `files: []` will override any files already present in the service container's `mountPath`, 
+> only use it for services that support overriding the `mountPath`.
 
 ## Prerequisites
 
