@@ -32,6 +32,30 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if or .Values.assets.enabled .Values.extraInitContainers }}
+      initContainers:
+        {{- if .Values.assets.enabled }}
+        - name: assets
+          {{- with .Values.assets.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ required "assets.image.repository is required when assets.enabled" .Values.assets.image.repository }}:{{ required "assets.image.tag is required when assets.enabled" .Values.assets.image.tag }}"
+          imagePullPolicy: {{ .Values.assets.image.pullPolicy }}
+          args:
+            - {{ required "assets.service is required when assets.enabled" .Values.assets.service | quote }}
+          {{- with .Values.assets.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: bento-assets
+              mountPath: {{ required "assets.mountPath is required when assets.enabled" .Values.assets.mountPath }}
+        {{- end }}
+        {{- with .Values.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -72,7 +96,7 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if or .Values.volumeMounts .Values.persistence.enabled }}
+          {{- if or .Values.volumeMounts .Values.persistence.enabled .Values.assets.enabled }}
           volumeMounts:
             {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -81,8 +105,20 @@ spec:
             - name: {{ include "stateless-svc.fullname" . }}-data
               mountPath: {{ .Values.persistence.mountPath }}
             {{- end }}
+            {{- if .Values.assets.enabled }}
+            {{- range .Values.assets.files }}
+            - name: bento-assets
+              mountPath: {{ printf "%s/%s" (trimSuffix "/" $.Values.assets.mountPath) . }}
+              subPath: {{ . }}
+              readOnly: true
+            {{- else }}
+            - name: bento-assets
+              mountPath: {{ .Values.assets.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
           {{- end }}
-      {{- if or .Values.volumes .Values.persistence.enabled }}
+      {{- if or .Values.volumes .Values.persistence.enabled .Values.assets.enabled }}
       volumes:
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
@@ -91,6 +127,10 @@ spec:
         - name: {{ include "stateless-svc.fullname" . }}-data
           persistentVolumeClaim:
             claimName: {{ include "stateless-svc.fullname" . }}
+        {{- end }}
+        {{- if .Values.assets.enabled }}
+        - name: bento-assets
+          emptyDir: {}
         {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}

@@ -205,6 +205,34 @@ persistence:
     - ReadWriteOnce
   size: 1Gi
 
+# Instance assets (branding, translations, config files) copied from a versioned bento_assets image by an init container.
+# For more information checkout: https://github.com/bento-platform/bento_assets
+assets:
+  enabled: false
+  image:
+    # e.g. ghcr.io/bento-platform/bento-assets-dev
+    repository: ""
+    # Pin a full version (e.g. "26.0.0" or "26.0.0@sha256:...") so that bumping it in values rolls out the new assets.
+    # Floating tags (e.g. "26", "edge") don't change the pod template and are cached by IfNotPresent.
+    tag: ""
+    pullPolicy: IfNotPresent
+  # Service key in the image's manifest.json, passed to its entrypoint, e.g. public, web, katsu, beacon
+  service: ""
+  # Directory the init container writes the service's files into, i.e. the common parent of its manifest.json targets,
+  # e.g. /bento-public/dist/public
+  mountPath: ""
+  # Files relative to mountPath, each mounted in the service's container with subPath, so that the image's own files in
+  # mountPath are kept. Leave empty to mount the whole directory instead (e.g. Beacon's /config).
+  # Only list files the instance ships: a missing subPath is created as a directory, which breaks the mount.
+  files: []
+    # - en_about.html
+    # - assets/branding.png
+  resources: {}
+  securityContext: {}
+
+# Additional init containers, run after the assets init container.
+extraInitContainers: []
+
 # Additional manifests to deploy alongside the service e.g. ExternalSecret
 extraManifests: []
   # - apiVersion: external-secrets.io/v1beta1
