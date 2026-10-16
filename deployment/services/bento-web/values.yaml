@@ -36,3 +36,17 @@ httpRoute:
         - path:
             type: PathPrefix
             value: /
+
+# Instance assets copied by an init container from the bento_assets dev image.
+# See https://github.com/bento-platform/bento_assets (manifest.json)
+assets:
+  enabled: true
+  image:
+    repository: ghcr.io/bento-platform/bento-assets-dev
+    # Floating tag: new edge builds are picked up on the next rollout restart
+    tag: "edge"
+    pullPolicy: Always
+  service: web
+  mountPath: /web/dist/static
+  files:
+    - branding.png
