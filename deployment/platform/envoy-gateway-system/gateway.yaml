@@ -8,6 +8,12 @@ metadata:
     cert-manager.io/cluster-issuer: dev-ca-issuer
 spec:
   gatewayClassName: eg
+  # Stable Envoy Service name (bento-gateway), see envoy-proxy.yaml
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: bento-gateway
   listeners:
     - name: default
       hostname: "*.bento.k8s.local"
