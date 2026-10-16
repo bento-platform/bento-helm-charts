@@ -42,7 +42,7 @@ httpRoute:
 assets:
   enabled: true
   image:
-    repository: ghcr.io/bento-platform/bento-assets-pcgl
+    repository: ghcr.io/bento-platform/bento-assets-dev
     # Floating tag: new edge builds are picked up on the next rollout restart
     tag: "edge"
     pullPolicy: Always
