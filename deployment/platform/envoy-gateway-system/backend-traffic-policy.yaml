@@ -1,20 +1,30 @@
 ---
-# Raises Envoy's default 15s route timeout for every route on the Gateway.
-# Katsu ingests (~95s for ~2.6k phenopackets) and large Drop-Box/DRS
+# Raises Envoy's default 15s route timeout for the routes that need it.
+# Katsu ingests (~95s for ~2.6k phenopackets) and large Drop-Box/DRS/Garage
 # transfers exceed 15s; Envoy then answers 504 "upstream request timeout"
-# while the backend keeps working. A route-targeted BackendTrafficPolicy
-# takes precedence over this one if a service needs a different value.
+# while the backend keeps working. Other routes keep the 15s default.
+# targetRefs are namespace-local, so this policy lives in the routes'
+# namespace (default), not envoy-gateway-system.
 # See docs/dns-and-tls-local-vs-prod.md.
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
-  name: gateway-timeouts
-  namespace: envoy-gateway-system
+  name: long-request-timeouts
+  namespace: default
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: gateway
+      kind: HTTPRoute
+      name: katsu-stateless-svc
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: drop-box-stateless-svc
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: drs-litestream-svc
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: garage
   timeout:
     http:
       # Time allowed for the entire response. Going above 300s also requires

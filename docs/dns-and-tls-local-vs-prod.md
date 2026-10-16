@@ -12,10 +12,10 @@ inside the cluster (e.g. WES posting an ingest to Katsu). By default, pods can't
 Inside the cluster, `bento.k8s.local` and `*.bento.k8s.local` resolve to the Gateway's Envoy Service, so
 service-to-service calls get the same TLS, routes and policies as external traffic.
 
-| File | Role |
-|------|------|
-| [envoy-proxy.yaml](../deployment/platform/envoy-gateway-system/envoy-proxy.yaml) | Gives the Envoy Service a fixed name, `bento-gateway` (the default name ends in a hash) |
-| [coredns-configmap.yaml](../deployment/platform/kube-system/coredns-configmap.yaml) | Adds the CoreDNS rewrite below |
+| File                                                                                | Role                                                                                    |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [envoy-proxy.yaml](../deployment/platform/envoy-gateway-system/envoy-proxy.yaml)    | Gives the Envoy Service a fixed name, `bento-gateway` (the default name ends in a hash) |
+| [coredns-configmap.yaml](../deployment/platform/kube-system/coredns-configmap.yaml) | Adds the CoreDNS rewrite below                                                          |
 
 ```
 rewrite stop {
@@ -41,11 +41,11 @@ Pods don't trust the dev root CA ([root-ca.yaml](../deployment/platform/cert-man
 ConfigMap in `default`. The backend services (authz, service-registry, katsu, wes, drs, drop-box) mount it at
 `/etc/ssl/bento/ca-certificates.crt` and point these env vars at it:
 
-| Env var | Used by |
-|---------|---------|
-| `SSL_CERT_FILE` | aiohttp, httpx |
-| `REQUESTS_CA_BUNDLE` | requests |
-| `CURL_CA_BUNDLE` | curl in WES workflows |
+| Env var              | Used by               |
+| -------------------- | --------------------- |
+| `SSL_CERT_FILE`      | aiohttp, httpx        |
+| `REQUESTS_CA_BUNDLE` | requests              |
+| `CURL_CA_BUNDLE`     | curl in WES workflows |
 
 These env vars replace the image's trust store, which is why the bundle includes the public roots.
 Always use the public OIDC URL (`https://auth.bento.k8s.local/...`). Keycloak runs with `hostname.strict: false`,
@@ -57,9 +57,11 @@ Envoy's default route timeout is 15s for the whole response. When it expires, En
 `504 upstream request timeout` (access log flag `UT`) while the backend keeps running. A Katsu ingest can
 finish even though WES reports it as failed.
 [backend-traffic-policy.yaml](../deployment/platform/envoy-gateway-system/backend-traffic-policy.yaml)
-raises the timeout to 300s for the whole Gateway.
+raises the timeout to 300s for the Katsu, Drop-Box, DRS and Garage HTTPRoutes. Other routes keep the 15s default.
 
 - To go above 300s, also set `streamIdleTimeout` (the default is 5 minutes).
+- To give another route the 300s timeout, add it to the policy's `targetRefs`. The policy must be in the
+  route's namespace (`default`).
 - To override the timeout for one service, add a `BackendTrafficPolicy` targeting its HTTPRoute (via `extraManifests`).
   The chart doesn't expose the HTTPRoute `timeouts` field.
 
