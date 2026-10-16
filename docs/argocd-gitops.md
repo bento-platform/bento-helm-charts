@@ -137,16 +137,10 @@ curl -k https://argocd.bento.k8s.local
 >
 > The gateway requests should now work.
 
-> [!WARNING]
-> For **Windows** and **MacOS** users, Cloud-Provider-Kind should create the Gateway container with an extra port mapping.
->
-> This port is mapped to port 443 on the Gateway to enable HTTPS routing.
->
-> If you are a **MacOS** or **Windows** user, take note of this port, it is in the script's output.
->
-> It will need to be included in HTTPS URLs for networking to work: `https://<domain>:<mapped port>`
->
-> For instance, ArgoCD should be accessible at `https://argocd.bento.k8s.local:<mapped port>`
+> [!NOTE]
+> For **MacOS** users, the Docker container IPs are not reachable from the host.
+> Cloud-Provider-Kind publishes the Envoy Gateway's port 443 on `localhost` instead, so the script outputs entries
+> for `127.0.0.1` and no port needs to be included in the HTTPS URLs.
 
 ## Export and trust root CA for HTTPS
 
@@ -183,15 +177,86 @@ in-cluster services.
 With Kind and [Cloud-Provider-Kind](https://github.com/kubernetes-sigs/cloud-provider-kind#mac-windows-and-wsl2-support) as the 
 local Kubernetes cluster, the Gateway is created as a Docker container.
 
-Check that a Docker container with the name starting with `kindccm-gw` exists:
+Check that the Gateway is programmed and has an address:
+```bash
+kubectl get gateway -n envoy-gateway-system gateway
+```
+
+Check that a Docker container with the name starting with `kindccm-` exists:
 ```bash
 docker ps
 ```
 
-This container is created and managed by Cloud-Provider-Kind as soon as the `Gateway` resource is created, providing 
+This container is created and managed by Cloud-Provider-Kind for the Envoy Gateway's LoadBalancer Service, providing 
 a network path from the host machine to k8s services exposed with an `HTTPRoute`.
 
+## Bootstrap the services layer
 
+This step deploys the Bento services (authz, katsu, drs, drop-box, wes, web, public, service-registry, ...) with an 
+ApplicationSet, generating one ArgoCD Application per `deployment/services/*/.argocd-app.yaml`.
+
+Use `kubectl` to create the services layer:
+```bash
+kubectl apply -f argocd/services.yaml
+```
+
+Wait for the generated applications to be synced and healthy:
+```bash
+kubectl get applications -n argocd
+```
+
+## Grant permissions to the test user
+
+> [!NOTE]
+> For local dev only. These manual steps will be automated in the future.
+
+The platform layer creates a `bento_test_user` user (see `deployment/platform/keycloak/init-auth-test-user-secret.yaml`
+for its credentials), but nothing grants it permissions in the authorization service yet.
+Without a grant, the user only sees the Home and Reference Genomes pages in Bento Web.
+
+Look up the test user's ID (the `sub` claim of its tokens) with the Keycloak admin CLI:
+```bash
+# Get Keycloak admin credentials
+KC_USER=$(kubectl -n keycloak get secret keycloak-initial-admin -o jsonpath='{.data.username}' | base64 -d)
+KC_PASS=$(kubectl -n keycloak get secret keycloak-initial-admin -o jsonpath='{.data.password}' | base64 -d)
+
+# Get the test user's sub ID
+TEST_USER_SUB=$(kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh get users --config /tmp/kcadm.config \
+  -r bentov2 -q username=bento_test_user -q exact=true --fields id --format csv --noquotes)
+echo $TEST_USER_SUB
+```
+
+Assign all permissions on everything to the test user:
+```bash
+kubectl exec deploy/authz-stateless-svc -- \
+  bento_authz assign-all-to-user https://auth.bento.k8s.local/realms/bentov2 "$TEST_USER_SUB"
+```
+
+> [!IMPORTANT]
+> The issuer must match the `iss` claim of the user's tokens, i.e. the `issuer` of the authorization service's 
+> `OPENID_CONFIG_URL`.
+>
+> The command does not check for existing grants, list them first to avoid duplicates:
+> ```bash
+> kubectl exec deploy/authz-stateless-svc -- bento_authz list grants
+> ```
+
+### Test user profile
+
+The test user is created without an email or name, so Keycloak asks for them on the first login.
+
+Fill in the form, or set them with the following command:
+```bash
+kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh update "users/$TEST_USER_SUB" --config /tmp/kcadm.config \
+  -r bentov2 -s email=bento_test_user@bento.k8s.local -s emailVerified=true -s firstName=Bento -s lastName=Test
+```
+
+### Test data
+
+To test ingestion, use Katsu's [`examples/1000g_phenopackets_1_of_3.json`](https://github.com/bento-platform/katsu/blob/develop/examples/1000g_phenopackets_1_of_3.json) 
+from the `develop` branch.
+
+**TODO:** include test data in bento-assets-dev images, and init files into drop-box during bootstrap
 
 
 ## Explore the stack in the ArgoCD UI
