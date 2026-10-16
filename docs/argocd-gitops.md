@@ -216,10 +216,6 @@ Without a grant, the user only sees the Home and Reference Genomes pages in Bent
 
 Look up the test user's ID (the `sub` claim of its tokens) with the Keycloak admin CLI:
 ```bash
-# Get Keycloak admin credentials
-KC_USER=$(kubectl -n keycloak get secret keycloak-initial-admin -o jsonpath='{.data.username}' | base64 -d)
-KC_PASS=$(kubectl -n keycloak get secret keycloak-initial-admin -o jsonpath='{.data.password}' | base64 -d)
-
 # Get the test user's sub ID
 TEST_USER_SUB=$(kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh get users --config /tmp/kcadm.config \
   -r bentov2 -q username=bento_test_user -q exact=true --fields id --format csv --noquotes)
@@ -256,7 +252,7 @@ kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh update "users/
 To test ingestion, use Katsu's [`examples/1000g_phenopackets_1_of_3.json`](https://github.com/bento-platform/katsu/blob/develop/examples/1000g_phenopackets_1_of_3.json) 
 from the `develop` branch.
 
-**TODO:** include test data in bento-assets-dev images, and init files into drop-box during bootstrap
+**TODO:** include test data in `bento-assets-dev` images and init files into drop-box during its bootstrap.
 
 
 ## Explore the stack in the ArgoCD UI
