@@ -205,37 +205,71 @@ Wait for the generated applications to be synced and healthy:
 kubectl get applications -n argocd
 ```
 
-## Grant permissions to the test user
+## Configure permissions
 
 > [!NOTE]
 > For local dev only. These manual steps will be automated in the future.
 
-The platform layer creates a `bento_test_user` user (see `deployment/platform/keycloak/init-auth-test-user-secret.yaml`
-for its credentials), but nothing grants it permissions in the authorization service yet.
-Without a grant, the user only sees the Home and Reference Genomes pages in Bento Web.
+The authorization service starts without grants. The steps below adapt Bento's
+[Configure permissions](https://github.com/bento-platform/bento/blob/main/docs/installation.md#6-configure-permissions)
+guide to this deployment.
 
-Look up the test user's ID (the `sub` claim of its tokens) with the Keycloak admin CLI:
+```bash
+bento_authz_k8s() { kubectl exec deploy/authz-stateless-svc -- bento_authz "$@"; }
+```
+
+> [!IMPORTANT]
+> The issuer must match the `iss` claim of the tokens. Grants are not deduplicated, check
+> `bento_authz_k8s list grants` before re-running.
+
+### a. Superuser permissions for the test user
+
 ```bash
 # Get the test user's sub ID
 TEST_USER_SUB=$(kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh get users --config /tmp/kcadm.config \
   -r bentov2 -q username=bento_test_user -q exact=true --fields id --format csv --noquotes)
-echo $TEST_USER_SUB
+
+bento_authz_k8s assign-all-to-user https://auth.bento.k8s.local/realms/bentov2 "$TEST_USER_SUB"
 ```
 
-Assign all permissions on everything to the test user:
+### b. WES client
+
 ```bash
-kubectl exec deploy/authz-stateless-svc -- \
-  bento_authz assign-all-to-user https://auth.bento.k8s.local/realms/bentov2 "$TEST_USER_SUB"
+bento_authz_k8s create grant \
+  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "wes"}' \
+  '{"everything": true}' \
+  'view:private_portal'
+
+bento_authz_k8s create grant \
+  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "wes"}' \
+  '{"everything": true}' \
+  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material' 'view:drop_box'
 ```
 
-> [!IMPORTANT]
-> The issuer must match the `iss` claim of the user's tokens, i.e. the `issuer` of the authorization service's 
-> `OPENID_CONFIG_URL`.
->
-> The command does not check for existing grants, list them first to avoid duplicates:
-> ```bash
-> kubectl exec deploy/authz-stateless-svc -- bento_authz list grants
-> ```
+### c. Aggregation and Beacon clients
+
+```bash
+bento_authz_k8s create grant \
+  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "aggregation"}' \
+  '{"everything": true}' \
+  'query:data' 'view:private_portal'
+```
+
+### d. Public data access
+
+Levels: `none`, `bool`, `counts` or `full` (**gives full data access to everyone**).
+```bash
+bento_authz_k8s public-data-access counts
+```
+
+### e. Portal access for all users in the realm
+
+```bash
+bento_authz_k8s create grant \
+  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "local_bentov2"}' \
+  '{"everything": true}' \
+  'view:private_portal'
+```
 
 ### Test user profile
 
