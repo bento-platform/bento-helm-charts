@@ -4,17 +4,9 @@ GW_ADDR=$(kubectl get gateway -n envoy-gateway-system gateway -o jsonpath='{.sta
 
 case "$(uname -s)" in
     Darwin)
-        # MacOS Cloud-Provider-Kind exposes the Gateway on an ephemeral port on localhost.
-        # Traffic is routed through 127.0.0.1 on that port
-        echo "MacOS detected: using ephemeral Gateway port mapping."
-        echo "WARNING: make sure to use the port when using HTTPS domains."
-        echo ""
-
+        # On MacOS, the container IPs are not reachable from the host.
+        # Cloud-Provider-Kind publishes the Envoy Gateway's port 443 on localhost instead.
         export HOST_IP="127.0.0.1"
-
-        # Discover the ephemeral Envoy port mapped to the host
-        ENVOY_CONTAINER=$(docker ps --filter "name=kindccm-gw" --format '{{.Names}}'  | head -n1)
-        export GW_PORT=$(docker inspect  -f '{{(index (index .NetworkSettings.Ports "443/tcp") 0).HostPort}}'  "$ENVOY_CONTAINER")
         ;;
     Linux)
         # On Linux, the Gateway can be reached on the container IP directly

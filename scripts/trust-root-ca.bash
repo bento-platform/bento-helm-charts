@@ -2,14 +2,18 @@ kubectl get secret root-ca-secret -n cert-manager -o jsonpath='{.data.tls\.crt}'
 
 case "$(uname -s)" in
     Darwin)
-        # Trust cert on MacOS
-        # TODO: validate this with a MacOS user
-        sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/dev-ca.crt
+        # Trust cert on MacOS, prompts for the password in a GUI dialog
+        if ! sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/dev-ca.crt; then
+            echo "Failed to add the root CA to the System keychain (was the authorization dialog cancelled?)"
+            exit 1
+        fi
         ;;
     Linux)
         # Trust cert on Linux
-        sudo cp /tmp/dev-ca.crt /usr/local/share/ca-certificates/
-        sudo update-ca-certificates
+        if ! sudo cp /tmp/dev-ca.crt /usr/local/share/ca-certificates/ || ! sudo update-ca-certificates; then
+            echo "Failed to add the root CA to the trusted certs"
+            exit 1
+        fi
         ;;
     *)
         echo "Unsupported OS"
