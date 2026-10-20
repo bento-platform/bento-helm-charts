@@ -216,6 +216,11 @@ guide to this deployment.
 
 ```bash
 bento_authz_k8s() { kubectl exec deploy/authz-stateless-svc -- bento_authz "$@"; }
+
+# Log kcadm into the master realm (writes /tmp/kcadm.config inside the pod; re-run if keycloak-0 restarts)
+kubectl -n keycloak exec keycloak-0 -- bash -c '/opt/keycloak/bin/kcadm.sh config credentials \
+  --config /tmp/kcadm.config --server http://localhost:8080 --realm master \
+  --user "$KC_BOOTSTRAP_ADMIN_USERNAME" --password "$KC_BOOTSTRAP_ADMIN_PASSWORD"'
 ```
 
 > [!IMPORTANT]
