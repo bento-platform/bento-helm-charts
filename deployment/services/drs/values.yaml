@@ -1,6 +1,7 @@
 image:
   repository: ghcr.io/bento-platform/bento_drs
-  tag: "0.21.3"
+#  tag: "0.21.5"
+  tag: "pr-193"
 
 service:
   port: 5000
@@ -29,9 +30,17 @@ litestream:
 volumes:
   - name: drs-tmp
     emptyDir: {}
+  # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+  # (deployment/platform/cert-manager/trust-bundle.yaml)
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
 volumeMounts:
   - name: drs-tmp
     mountPath: /drs/tmp
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
 
 env:
   - name: DATABASE
@@ -39,52 +48,68 @@ env:
   - name: DRS_INGEST_TMP_DIR
     value: "/drs/tmp"
   - name: SERVICE_BASE_URL
-    value: "https://drs.bento.k8s.local"
+    value: "https://bento.k8s.local/api/drs"
   - name: BENTO_AUTHZ_SERVICE_URL
     value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
   - name: CORS_ORIGINS
     value: "https://portal.bento.k8s.local"
   - name: LOG_LEVEL
     value: "info"
-  - name: S3_ENDPOINT
+  - name: S3_BUCKET
+    value: "drs"
+  - name: AWS_ENDPOINT_URL_S3
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: endpoint
-  - name: S3_BUCKET
-    value: "drs"
-  - name: S3_REGION_NAME
+  - name: AWS_DEFAULT_REGION
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: region
-  - name: S3_ACCESS_KEY
+  - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: access-key-id
-  - name: S3_SECRET_KEY
+  - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         name: drs-key
         key: secret-access-key
-  - name: S3_USE_HTTPS
-    value: "false"
-  - name: S3_VALIDATE_SSL
-    value: "false"
+  # - name: S3_VALIDATE_SSL
+  #   value: "false"
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted above. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: AWS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
 
+# Path routing on the apex listener. The Chart does not strip the prefix,
+# hence the URLRewrite filter.
 httpRoute:
   enabled: true
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: gateway
-      sectionName: default
+      sectionName: root
       namespace: envoy-gateway-system
   hostnames:
-    - drs.bento.k8s.local
+    - bento.k8s.local
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api/drs
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /

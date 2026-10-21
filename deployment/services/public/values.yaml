@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/bento-platform/bento_public
-  tag: "0.31.0"
+  tag: "1.1.0"
 
 service:
   port: 5000
@@ -19,15 +19,15 @@ env:
   - name: BENTO_PUBLIC_SHOW_HEADER_TITLE
     value: "true"
   - name: BENTO_PUBLIC_SHOW_PORTAL_LINK
-    value: "true"
+    value: "false"
   - name: BENTO_PUBLIC_SHOW_SIGN_IN
     value: "true"
   - name: BENTO_PUBLIC_FORCE_CATALOGUE
-    value: "false"
-  - name: BENTO_PUBLIC_PCGL_MODE
-    value: "false"
-  - name: BENTO_BEACON_UI_ENABLED
     value: "true"
+  - name: BENTO_PUBLIC_PCGL_MODE
+    value: "true"
+  - name: BENTO_BEACON_UI_ENABLED
+    value: "false"
   - name: BENTO_BEACON_NETWORK_ENABLED
     value: "false"
   - name: BEACON_URL
@@ -56,3 +56,27 @@ httpRoute:
         - path:
             type: PathPrefix
             value: /
+
+# Instance assets copied by an init container from the bento_assets dev image.
+# See https://github.com/bento-platform/bento_assets (manifest.json)
+assets:
+  enabled: true
+  image:
+    repository: ghcr.io/bento-platform/bento-assets-dev
+    # Floating tag: new edge builds are picked up on the next rollout restart
+    tag: "edge"
+    pullPolicy: Always
+  service: public
+  mountPath: /bento-public/dist/public
+  # The dev instance ships all of these, French ones included
+  files:
+    - en_about.html
+    - fr_about.html
+    - assets/branding.png
+    - assets/branding.fr.png
+    - assets/branding.lightbg.png
+    - assets/branding.lightbg.fr.png
+    - assets/icon_small.png
+    - styles/instance.css
+    - locales/en/translation_en.json
+    - locales/fr/translation_fr.json
