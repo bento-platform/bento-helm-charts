@@ -19,11 +19,11 @@ env:
   - name: BENTO_PUBLIC_SHOW_HEADER_TITLE
     value: "true"
   - name: BENTO_PUBLIC_SHOW_PORTAL_LINK
-    value: "true"
+    value: "false"
   - name: BENTO_PUBLIC_SHOW_SIGN_IN
     value: "true"
   - name: BENTO_PUBLIC_FORCE_CATALOGUE
-    value: "false"
+    value: "true"
   - name: BENTO_PUBLIC_PCGL_MODE
     value: "true"
   - name: BENTO_BEACON_UI_ENABLED
