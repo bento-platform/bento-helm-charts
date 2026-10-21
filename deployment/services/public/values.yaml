@@ -25,9 +25,9 @@ env:
   - name: BENTO_PUBLIC_FORCE_CATALOGUE
     value: "false"
   - name: BENTO_PUBLIC_PCGL_MODE
-    value: "false"
-  - name: BENTO_BEACON_UI_ENABLED
     value: "true"
+  - name: BENTO_BEACON_UI_ENABLED
+    value: "false"
   - name: BENTO_BEACON_NETWORK_ENABLED
     value: "false"
   - name: BEACON_URL
@@ -62,7 +62,7 @@ httpRoute:
 assets:
   enabled: true
   image:
-    repository: ghcr.io/bento-platform/bento-assets-pcgl
+    repository: ghcr.io/bento-platform/bento-assets-dev
     # Floating tag: new edge builds are picked up on the next rollout restart
     tag: "edge"
     pullPolicy: Always
