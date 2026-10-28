@@ -1,0 +1,33 @@
+---
+# Distributes CA bundles to namespaces as ConfigMaps. Used to make pods trust
+# the cert-manager dev root CA in local dev, see
+# deployment/platform/cert-manager/trust-bundle.yaml and
+# docs/dns-and-tls-local-vs-prod.md.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trust-manager
+  namespace: argocd
+  annotations:
+    # After cert-manager, which issues trust-manager's webhook certificate
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: trust-manager
+    repoURL: https://charts.jetstack.io
+    targetRevision: v0.25.0
+    helm:
+      releaseName: trust-manager
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
