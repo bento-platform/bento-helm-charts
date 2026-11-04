@@ -44,7 +44,7 @@ assets:
   image:
     repository: ghcr.io/bento-platform/bento-assets-dev
     # Floating tag: new edge builds are picked up on the next rollout restart
-    tag: "edge"
+    tag: "28.0.0"
     pullPolicy: Always
   service: web
   mountPath: /web/dist/static
