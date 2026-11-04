@@ -42,8 +42,10 @@ spec:
               value: "aggregation"
             - name: BENTO_WES_CLIENT_ID
               value: "wes"
+            # Hyphen, not underscore: bentoctl names the k8s Secret
+            # "<client id>-oidc-secret", and Secret names can't hold "_"
             - name: BENTO_PUBLIC_CLIENT_ID
-              value: "bento_public"
+              value: "bento-public"
             - name: BENTOV2_AUTH_ADMIN_USER
               valueFrom:
                 secretKeyRef:

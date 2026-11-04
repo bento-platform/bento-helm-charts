@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/bento-platform/bento_web
-  tag: "8.1.6"
+  tag: "8.2.2"
 
 service:
   port: 80
@@ -43,7 +43,7 @@ assets:
   enabled: true
   image:
     repository: ghcr.io/bento-platform/bento-assets-dev
-    # Floating tag: new edge builds are picked up on the next rollout restart
+    # Pinned to the Bento v28 assets release
     tag: "28.0.0"
     pullPolicy: Always
   service: web
