@@ -210,71 +210,52 @@ kubectl get applications -n argocd
 > [!NOTE]
 > For local dev only. These manual steps will be automated in the future.
 
-The authorization service starts without grants. The steps below adapt Bento's
+The steps below adapt Bento's
 [Configure permissions](https://github.com/bento-platform/bento/blob/main/docs/installation.md#6-configure-permissions)
 guide to this deployment.
 
+Most grants are static: the authorization service loads them at startup from `static_data.json`, defined in
+[deployment/services/authz/values.yaml](../deployment/services/authz/values.yaml) (see [b to e](#b-to-e-static-grants)).
+Only the test user's superuser grant is created by hand, since its Keycloak user ID is generated at runtime.
+
 ```bash
 bento_authz_k8s() { kubectl exec deploy/authz-stateless-svc -- bento_authz "$@"; }
-
-# Log kcadm into the master realm (writes /tmp/kcadm.config inside the pod; re-run if keycloak-0 restarts)
-kubectl -n keycloak exec keycloak-0 -- bash -c '/opt/keycloak/bin/kcadm.sh config credentials \
-  --config /tmp/kcadm.config --server http://localhost:8080 --realm master \
-  --user "$KC_BOOTSTRAP_ADMIN_USERNAME" --password "$KC_BOOTSTRAP_ADMIN_PASSWORD"'
 ```
 
-> [!IMPORTANT]
-> The issuer must match the `iss` claim of the tokens. Grants are not deduplicated, check
-> `bento_authz_k8s list grants` before re-running.
+### 1: Superuser permissions for the test user
 
-### a. Superuser permissions for the test user
-
+Retrieve the credentials for the test user:
 ```bash
-# Get the test user's sub ID
-TEST_USER_SUB=$(kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh get users --config /tmp/kcadm.config \
-  -r bentov2 -q username=bento_test_user -q exact=true --fields id --format csv --noquotes)
+# Get the username
+kubectl get secrets -n keycloak bentoctl-test-user -o jsonpath='{.data.username}' | base64 -d
 
-bento_authz_k8s assign-all-to-user https://auth.bento.k8s.local/realms/bentov2 "$TEST_USER_SUB"
+# Get the password
+kubectl get secrets -n keycloak bentoctl-test-user -o jsonpath='{.data.password}' | base64 -d
 ```
 
-### b. WES client
+Before creating the authz grant for this user, you need to find their `sub` ID in the OIDC issuer.
+This can be done by simply loging in at: https://portal.bento.k8s.local/profile
 
+The `issuer` and `subject ID` (`sub`) values will be displayed after a succesful login:
+
+![auth user profile](auth-user-profile.png)
+
+
+Finally, use the `assign-all-to-user` command to grant superuser permissions to the test user.
 ```bash
-bento_authz_k8s create grant \
-  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "wes"}' \
-  '{"everything": true}' \
-  'view:private_portal'
-
-bento_authz_k8s create grant \
-  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "wes"}' \
-  '{"everything": true}' \
-  'query:data' 'ingest:data' 'ingest:reference_material' 'delete:reference_material' 'view:drop_box'
+bento_authz_k8s assign-all-to-user "<Issuer>" "<Subject ID>"
 ```
 
-### c. Aggregation and Beacon clients
+### Static grants
 
-```bash
-bento_authz_k8s create grant \
-  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "aggregation"}' \
-  '{"everything": true}' \
-  'query:data' 'view:private_portal'
-```
+No action needed, these grants are loaded from `static_data.json` on every start of the authorization service.
+All of them apply to every resource (`{"everything": true}`).
 
-### d. Public data access
+To change them, edit `static_data.json` and bump the `bento.ca/static-data-revision` pod annotation in the same file,
+so that the pods restart and reload it.
 
-Levels: `none`, `bool`, `counts` or `full` (**gives full data access to everyone**).
-```bash
-bento_authz_k8s public-data-access counts
-```
-
-### e. Portal access for all users in the realm
-
-```bash
-bento_authz_k8s create grant \
-  '{"iss": "https://auth.bento.k8s.local/realms/bentov2", "client": "local_bentov2"}' \
-  '{"everything": true}' \
-  'view:private_portal'
-```
+> [!NOTE]
+> Static grants are optional, you can use only DB grants if you want, but this needs manual steps.
 
 ### Test user profile
 
