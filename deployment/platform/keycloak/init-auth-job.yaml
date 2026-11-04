@@ -12,7 +12,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: bentoctl-init-auth
-          image: ghcr.io/bento-platform/bentoctl:pr-360
+          image: ghcr.io/bento-platform/bentoctl:pr-385
           imagePullPolicy: Always
           command: ["python3", "-m", "py_bentoctl.entry", "init-auth"]
           env:
