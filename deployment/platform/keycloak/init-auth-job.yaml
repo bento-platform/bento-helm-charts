@@ -42,6 +42,8 @@ spec:
               value: "aggregation"
             - name: BENTO_WES_CLIENT_ID
               value: "wes"
+            - name: BENTO_PUBLIC_CLIENT_ID
+              value: "bento_public"
             - name: BENTOV2_AUTH_ADMIN_USER
               valueFrom:
                 secretKeyRef:
