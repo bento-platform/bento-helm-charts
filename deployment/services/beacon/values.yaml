@@ -1,0 +1,136 @@
+---
+image:
+  repository: ghcr.io/bento-platform/bento_beacon
+  tag: "0.26.7"
+
+service:
+  port: 5000
+
+# The stateless-svc Chart has no config checksum annotation, so editing the
+# ConfigMap below does not roll the pods. Bump this when beacon_config.json
+# changes. Note the service also caches the file for the lifetime of the
+# process, so a restart is required either way.
+podAnnotations:
+  bento.ca/beacon-config-revision: "1"
+
+env:
+  - name: BENTO_UID
+    value: "1000"
+  - name: INTERNAL_PORT
+    value: "5000"
+  - name: BENTO_DEBUG
+    value: "False"
+
+  - name: BEACON_BASE_URL
+    value: "https://bento.k8s.local/api/beacon"
+  - name: BENTOV2_PUBLIC_URL
+    value: "https://bento.k8s.local"
+  - name: BENTOV2_DOMAIN
+    value: "bento.k8s.local"
+  - name: BENTO_BEACON_UI_ENABLED
+    value: "false"
+  - name: BENTO_BEACON_NETWORK_ENABLED
+    value: "false"
+
+  - name: KATSU_BASE_URL
+    value: "http://katsu-stateless-svc.default.svc.cluster.local:8000"
+  - name: DRS_URL
+    value: "http://drs-litestream-svc:5000"
+  # GOHAN_BASE_URL and REFERENCE_URL are left unset: Gohan and the reference
+  # service are not deployed. useGohan is false in beacon_config.json below.
+
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "http://authz-stateless-svc.default.svc.cluster.local:5000"
+  # Beacon reads AUTHZ_ENABLED (default true), not BENTO_AUTHZ_ENABLED; set explicitly so the authz integration is visible
+  - name: AUTHZ_ENABLED
+    value: "true"
+  - name: BENTO_OPENID_CONFIG_URL
+    value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+  - name: BEACON_CLIENT_ID
+    # TODO: the id key of aggregation-oidc-secret holds the Keycloak internal
+    # UUID, not the client name. Same workaround as WES_CLIENT_ID in wes.
+    value: "aggregation"
+    # valueFrom:
+    #   secretKeyRef:
+    #     name: aggregation-oidc-secret
+    #     key: id
+  - name: BEACON_CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: aggregation-oidc-secret
+        key: secret
+
+  # Directory holding beacon_config.json, mounted from the configMap below
+  - name: CONFIG_ABSOLUTE_PATH
+    value: "/config/"
+
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  - name: SSL_CERT_FILE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: REQUESTS_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+  - name: CURL_CA_BUNDLE
+    value: "/etc/ssl/bento/ca-certificates.crt"
+
+configMap:
+  enabled: true
+  data:
+    beacon_config.json: |
+      {
+        "useGohan": false,
+        "endpointSets": ["individuals", "datasets"],
+        "serviceInfo": {
+          "organization": {
+            "id": "c3g",
+            "name": "Canadian Centre for Computational Genomics",
+            "welcomeUrl": "https://computationalgenomics.ca/",
+            "logoUrl": "https://computationalgenomics.ca/wp-content/uploads/2021/12/c3g_source_logo_small.png",
+            "contactUrl": "https://computationalgenomics.ca/contact-us/"
+          }
+        }
+      }
+
+# Mounted as a directory rather than with subPath, so the file tracks
+# ConfigMap updates
+volumes:
+  - name: beacon-config
+    configMap:
+      name: beacon-stateless-svc
+  # LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+  # (deployment/platform/cert-manager/trust-bundle.yaml)
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
+volumeMounts:
+  - name: beacon-config
+    mountPath: /config
+    readOnly: true
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
+
+# Path routing on the apex listener, at the beacon service_kind. The Chart
+# does not strip the prefix, hence the URLRewrite filter.
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: root
+      namespace: envoy-gateway-system
+  hostnames:
+    - bento.k8s.local
+  # Leave backendRefs to be templated by the Helm Chart
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/beacon
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
