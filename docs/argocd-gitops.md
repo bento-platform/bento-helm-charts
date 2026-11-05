@@ -215,9 +215,10 @@ The steps below adapt Bento's
 guide to this deployment.
 
 Most grants are static: the authorization service loads them at startup from `static_data.json`, defined in
-[deployment/services/authz/values.yaml](../deployment/services/authz/values.yaml) (see [b to e](#b-to-e-static-grants)).
+[deployment/services/authz/values.yaml](../deployment/services/authz/values.yaml).
 Only the test user's superuser grant is created by hand, since its Keycloak user ID is generated at runtime.
 
+Create a shorthand function to use `authz`'s CLI for grants/groups creation.
 ```bash
 bento_authz_k8s() { kubectl exec deploy/authz-stateless-svc -- bento_authz "$@"; }
 ```
@@ -257,22 +258,13 @@ so that the pods restart and reload it.
 > [!NOTE]
 > Static grants are optional, you can use only DB grants if you want, but this needs manual steps.
 
-### Test user profile
-
-The test user is created without an email or name, so Keycloak asks for them on the first login.
-
-Fill in the form, or set them with the following command:
-```bash
-kubectl -n keycloak exec keycloak-0 -- /opt/keycloak/bin/kcadm.sh update "users/$TEST_USER_SUB" --config /tmp/kcadm.config \
-  -r bentov2 -s email=bento_test_user@bento.k8s.local -s emailVerified=true -s firstName=Bento -s lastName=Test
-```
-
 ### Test data
 
 To test ingestion, use Katsu's [`examples/1000g_phenopackets_1_of_3.json`](https://github.com/bento-platform/katsu/blob/develop/examples/1000g_phenopackets_1_of_3.json) 
 from the `develop` branch.
 
-**TODO:** include test data in `bento-assets-dev` images and init files into drop-box during its bootstrap.
+**TODO:** find a way to bootstrap data from [bento_demo_dataset](https://github.com/bento-platform/bento_demo_dataset) 
+into Drop-Box.
 
 
 ## Explore the stack in the ArgoCD UI
