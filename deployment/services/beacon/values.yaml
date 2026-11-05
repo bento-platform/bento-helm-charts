@@ -28,7 +28,7 @@ env:
   - name: BENTOV2_DOMAIN
     value: "bento.k8s.local"
   - name: BENTO_BEACON_UI_ENABLED
-    value: "false"
+    value: "true"
   - name: BENTO_BEACON_NETWORK_ENABLED
     value: "false"
 

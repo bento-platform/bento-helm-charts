@@ -38,7 +38,7 @@ should return the ClusterIP of `svc/bento-gateway`.
 Pods don't trust the dev root CA ([root-ca.yaml](../deployment/platform/cert-manager/root-ca.yaml)).
 [trust-manager](../deployment/infra/trust-manager-app.yaml) syncs the
 [`bento-ca-bundle`](../deployment/platform/cert-manager/trust-bundle.yaml) (dev CA + public roots) to a
-ConfigMap in `default`. The backend services (authz, service-registry, katsu, wes, drs, drop-box) mount it at
+ConfigMap in `default`. The backend services (authz, service-registry, katsu, beacon, wes, drs, drop-box) mount it at
 `/etc/ssl/bento/ca-certificates.crt` and point these env vars at it:
 
 | Env var              | Used by               |
