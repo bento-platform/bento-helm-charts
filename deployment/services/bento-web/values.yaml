@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/bento-platform/bento_web
-  tag: "7.4.0"
+  tag: "8.2.2"
 
 service:
   port: 80
@@ -36,3 +36,17 @@ httpRoute:
         - path:
             type: PathPrefix
             value: /
+
+# Instance assets copied by an init container from the bento_assets dev image.
+# See https://github.com/bento-platform/bento_assets (manifest.json)
+assets:
+  enabled: true
+  image:
+    repository: ghcr.io/bento-platform/bento-assets-dev
+    # Pinned to the Bento v28 assets release
+    tag: "28.0.0"
+    pullPolicy: Always
+  service: web
+  mountPath: /web/dist/static
+  files:
+    - branding.png

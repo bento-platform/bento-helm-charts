@@ -1,0 +1,42 @@
+---
+# Gateway-level CORS for everything served on the apex listener (bento_public
+# and the /api/* routes), mirroring bento_gateway's $public_cors map.
+# Handling it here rather than only in each service means error responses
+# (e.g. an uncaught 500) still carry CORS headers, like nginx's
+# `add_header ... always`, and preflights are answered by Envoy directly.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: root-cors
+  namespace: envoy-gateway-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: root
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: default
+  cors:
+    allowOrigins:
+      - "https://bento.k8s.local"
+      - "https://portal.bento.k8s.local"
+    allowMethods:
+      - GET
+      - HEAD
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    # Matches the list the Bento services allow themselves
+    allowHeaders:
+      - Accept
+      - Accept-Language
+      - Authorization
+      - Content-Language
+      - Content-Type
+    allowCredentials: true
+    maxAge: 600s

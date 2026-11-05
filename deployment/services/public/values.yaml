@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/bento-platform/bento_public
-  tag: "0.31.0"
+  tag: "1.3.0"
 
 service:
   port: 5000
@@ -12,20 +12,23 @@ env:
     value: "bentov2-public"
   - name: BENTO_PUBLIC_CLIENT_NAME
     value: "BentoPublicDev"
-  - name: BENTO_PUBLIC_PORTAL_URL
+  - name: BENTO_PUBLIC_ADMIN_URL
     value: "https://portal.bento.k8s.local"
   - name: BENTO_PUBLIC_TRANSLATED
     value: "true"
   - name: BENTO_PUBLIC_SHOW_HEADER_TITLE
     value: "true"
-  - name: BENTO_PUBLIC_SHOW_PORTAL_LINK
-    value: "true"
+  - name: BENTO_PUBLIC_SHOW_ADMIN_LINK
+    value: "false"
   - name: BENTO_PUBLIC_SHOW_SIGN_IN
     value: "true"
   - name: BENTO_PUBLIC_FORCE_CATALOGUE
-    value: "false"
+    value: "true"
   - name: BENTO_PUBLIC_PCGL_MODE
-    value: "false"
+    value: "true"
+  # Shows 'apply for access' buttons in the catalogue when set
+  - name: BENTO_PUBLIC_APPLY_FOR_ACCESS_URL
+    value: ""
   - name: BENTO_BEACON_UI_ENABLED
     value: "true"
   - name: BENTO_BEACON_NETWORK_ENABLED
@@ -36,10 +39,52 @@ env:
     value: "https://bento.k8s.local"
   - name: BENTO_PUBLIC_PORT
     value: "5000"
+
+  # Auth: confidential OIDC client, separate from the portal's client.
+  # bentoctl init-auth (deployment/platform/keycloak/init-auth-job.yaml)
+  # creates it and writes its secret to bento-public-oidc-secret.
   - name: OPENID_CONFIG_URL
     value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
+  # Literal value: the secret's "id" key holds Keycloak's internal client UUID
   - name: CLIENT_ID
-    value: "local_bentov2"
+    value: "bento-public"
+  - name: CLIENT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: bento-public-oidc-secret
+        key: secret
+  # Session cookie encryption key, from the chart Secret below
+  - name: AUTH_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: public-stateless-svc
+        key: auth-secret
+  - name: AUTH_URL
+    value: "https://bento.k8s.local"
+
+  # LOCAL DEV ONLY. The Next.js server calls the IdP itself. Node ignores
+  # SSL_CERT_FILE, so add the cert-manager dev root CA, mounted below.
+  # See docs/dns-and-tls-local-vs-prod.md.
+  - name: NODE_EXTRA_CA_CERTS
+    value: "/etc/ssl/bento/ca-certificates.crt"
+
+# DEV ONLY: placeholder AUTH_SECRET. In prod, source it from an external
+# secret store instead, e.g. generated with: openssl rand -base64 32
+secret:
+  enabled: true
+  stringData:
+    auth-secret: "public-auth-secret-CHANGE-ME"
+
+# LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+# (deployment/platform/cert-manager/trust-bundle.yaml)
+volumes:
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
+volumeMounts:
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
 
 httpRoute:
   enabled: true
@@ -56,3 +101,28 @@ httpRoute:
         - path:
             type: PathPrefix
             value: /
+
+# Instance assets copied by an init container from the bento_assets dev image.
+# See https://github.com/bento-platform/bento_assets (manifest.json)
+assets:
+  enabled: true
+  image:
+    repository: ghcr.io/bento-platform/bento-assets-dev
+    # Pinned to the Bento v28 assets release
+    tag: "28.0.0"
+    pullPolicy: Always
+  service: public
+  # Next.js serves public/ at the web root (bento_public >= 1.3.0)
+  mountPath: /bento-public/public/public
+  # The dev instance ships all of these, French ones included
+  files:
+    - en_about.html
+    - fr_about.html
+    - assets/branding.png
+    - assets/branding.fr.png
+    - assets/branding.lightbg.png
+    - assets/branding.lightbg.fr.png
+    - assets/icon_small.png
+    - styles/instance.css
+    - locales/en/translation_en.json
+    - locales/fr/translation_fr.json

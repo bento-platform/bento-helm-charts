@@ -4,3 +4,4 @@ kind: Kustomization
 
 resources:
   - root-ca.yaml
+  - trust-bundle.yaml

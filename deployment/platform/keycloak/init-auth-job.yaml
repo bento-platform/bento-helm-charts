@@ -12,7 +12,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: bentoctl-init-auth
-          image: ghcr.io/bento-platform/bentoctl:pr-360
+          image: ghcr.io/bento-platform/bentoctl:pr-385
           imagePullPolicy: Always
           command: ["python3", "-m", "py_bentoctl.entry", "init-auth"]
           env:
@@ -42,6 +42,10 @@ spec:
               value: "aggregation"
             - name: BENTO_WES_CLIENT_ID
               value: "wes"
+            # Hyphen, not underscore: bentoctl names the k8s Secret
+            # "<client id>-oidc-secret", and Secret names can't hold "_"
+            - name: BENTO_PUBLIC_CLIENT_ID
+              value: "bento-public"
             - name: BENTOV2_AUTH_ADMIN_USER
               valueFrom:
                 secretKeyRef:

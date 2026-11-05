@@ -1,0 +1,23 @@
+---
+# LOCAL DEV ONLY. Syncs the dev root CA, plus the public roots, into a
+# "bento-ca-bundle" ConfigMap in the default namespace. Bento services mount
+# it and point SSL_CERT_FILE / REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE at it so
+# they can verify the Gateway's dev certificate. Not needed with a publicly
+# trusted CA (Let's Encrypt in prod). See docs/dns-and-tls-local-vs-prod.md.
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: bento-ca-bundle
+spec:
+  sources:
+    # Keep the public roots: SSL_CERT_FILE replaces the system trust store
+    - useDefaultCAs: true
+    - secret:
+        name: root-ca-secret
+        key: ca.crt
+  target:
+    configMap:
+      key: ca-certificates.crt
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: default

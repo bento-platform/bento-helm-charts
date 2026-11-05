@@ -1,0 +1,17 @@
+---
+# Gives the Gateway's Envoy Service a stable name. By default Envoy Gateway
+# names it envoy-<ns>-<gateway>-<hash>, which the in-cluster CoreDNS rewrite
+# (deployment/platform/kube-system/coredns-configmap.yaml) cannot target.
+# "envoy-gateway" is already taken by the controller's own Service.
+# See docs/dns-and-tls-local-vs-prod.md.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: bento-gateway
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        name: bento-gateway
