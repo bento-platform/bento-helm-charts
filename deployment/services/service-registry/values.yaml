@@ -11,7 +11,7 @@ service:
 # changes. Note the service also caches the file for the lifetime of the
 # process, so a restart is required either way.
 podAnnotations:
-  bento.ca/services-json-revision: "3"
+  bento.ca/services-json-revision: "4"
 
 env:
   - name: BENTO_UID
@@ -109,6 +109,11 @@ configMap:
           "service_kind": "wes",
           "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
           "repository": "git@github.com:bento-platform/bento_wes.git"
+        },
+        "event-relay": {
+          "service_kind": "event-relay",
+          "url_template": "{BENTO_PUBLIC_URL}/api/{service_kind}",
+          "repository": "git@github.com:bento-platform/bento_event_relay.git"
         },
         "web": {
           "service_kind": "web",
