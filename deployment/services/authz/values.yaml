@@ -10,7 +10,7 @@ service:
 # ConfigMap below does not roll the pods. Bump this when static_data.json
 # changes. authz only reads the file at startup, so a restart is required.
 podAnnotations:
-  bento.ca/static-data-revision: "1"
+  bento.ca/static-data-revision: "2"
 
 env:
   - name: DATABASE_URI
@@ -116,6 +116,16 @@ configMap:
               "delete:reference_material",
               "view:drop_box"
             ]
+          },
+          {
+            "subject": {
+              "iss": "https://auth.bento.k8s.local/realms/bentov2",
+              "client": "etl"
+            },
+            "resource": {"everything": true},
+            "expiry": null,
+            "notes": "Bento ETL: replace datasets (delete, then create) and ingest data into them",
+            "permissions": ["create:dataset", "delete:dataset", "ingest:data"]
           },
           {
             "subject": {
