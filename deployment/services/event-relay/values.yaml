@@ -1,0 +1,81 @@
+---
+image:
+  repository: ghcr.io/bento-platform/bento_event_relay
+  tag: "3.1.19"
+
+service:
+  port: 5000
+
+env:
+  - name: BENTO_DEBUG
+    value: "false"
+  - name: NODE_ENV
+    value: "production"
+  - name: JSON_MESSAGES
+    value: "true"
+  - name: SERVICE_LISTEN_ON
+    value: "5000"
+
+  # bento_web connects to the socket at {service url}/private/socket.io/, so
+  # the path must match exactly (including the trailing slash)
+  - name: SOCKET_IO_PATH
+    value: "/private/socket.io/"
+
+  # Semicolon-separated. Must be set: /service-info throws when it is unset.
+  - name: CORS_ORIGINS
+    value: "https://portal.bento.k8s.local"
+
+  - name: REDIS_CONNECTION
+    value: "redis://valkey.default.svc.cluster.local:6379"
+  - name: REDIS_SUBSCRIBE_PATTERN
+    value: "bento.*"
+
+  # Public URL through the gateway (CoreDNS resolves bento.k8s.local
+  # in-cluster). The relay passes an https.Agent to node-fetch on every authz
+  # call, which throws ERR_INVALID_PROTOCOL for http URLs, so the in-cluster
+  # http Service URL cannot be used. The trailing slash is required: the relay
+  # concatenates policy/evaluate_one directly onto this value.
+  - name: BENTO_AUTHZ_SERVICE_URL
+    value: "https://bento.k8s.local/api/authorization/"
+
+  # LOCAL DEV ONLY. Trust the cert-manager dev root CA (plus public roots),
+  # mounted below. See docs/dns-and-tls-local-vs-prod.md.
+  # Node does not read SSL_CERT_FILE.
+  - name: NODE_EXTRA_CA_CERTS
+    value: "/etc/ssl/bento/ca-certificates.crt"
+
+# LOCAL DEV ONLY. Dev CA bundle synced by trust-manager
+# (deployment/platform/cert-manager/trust-bundle.yaml)
+volumes:
+  - name: bento-ca-bundle
+    configMap:
+      name: bento-ca-bundle
+volumeMounts:
+  - name: bento-ca-bundle
+    mountPath: /etc/ssl/bento
+    readOnly: true
+
+# Path routing on the apex listener, at the event-relay service_kind. The
+# Chart does not strip the prefix, hence the URLRewrite filter.
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      sectionName: root
+      namespace: envoy-gateway-system
+  hostnames:
+    - bento.k8s.local
+  # Leave backendRefs to be templated by the Helm Chart
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/event-relay
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
