@@ -1,11 +1,13 @@
 image:
   repository: ghcr.io/bento-platform/bento_public
-  tag: "1.3.0"
+  tag: "1.4.0"
 
 service:
   port: 5000
 
 env:
+  - name: NODE_ENV
+    value: "production"
   - name: BENTO_UID
     value: "1000"
   - name: BENTO_PUBLIC_SERVICE_ID
@@ -108,8 +110,8 @@ assets:
   enabled: true
   image:
     repository: ghcr.io/bento-platform/bento-assets-dev
-    # Pinned to the Bento v28 assets release
-    tag: "28.0.0"
+    # Pinned to the Bento v29 assets release
+    tag: "29.0.0"
     pullPolicy: Always
   service: public
   # Next.js serves public/ at the web root (bento_public >= 1.3.0)

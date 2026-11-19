@@ -1,7 +1,7 @@
 ---
 image:
   repository: ghcr.io/bento-platform/katsu
-  tag: "15.3.0"
+  tag: "16.0.0"
 
 service:
   port: 8000
@@ -84,8 +84,8 @@ assets:
   enabled: true
   image:
     repository: ghcr.io/bento-platform/bento-assets-dev
-    # Pinned to the Bento v28 assets release
-    tag: "28.0.0"
+    # Pinned to the Bento v29 assets release
+    tag: "29.0.0"
     pullPolicy: Always
   service: katsu
   mountPath: /app/chord_metadata_service

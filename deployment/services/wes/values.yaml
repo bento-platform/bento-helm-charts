@@ -1,7 +1,7 @@
 ---
 image:
   repository: ghcr.io/bento-platform/bento_wes
-  tag: "0.16.10"
+  tag: "0.17.0"
 
 service:
   port: 5000
@@ -75,8 +75,14 @@ env:
   # Hostnames only (no scheme/port): compared against the workflow URL's host.
   # A non-matching host silently skips the WDL download, and the run later
   # fails womtool validation with only the file path in stderr.
+  # Since WES 0.17, the workflow URL must also be exactly
+  # {provider url}/workflows/{id}.wdl for a workflow provider listed by the
+  # service registry (its url_template), or the run is rejected with a 400.
   - name: WORKFLOW_HOST_ALLOW_LIST
     value: "bento.k8s.local,portal.bento.k8s.local"
+  # WES spec workflow_attachment uploads; Bento workflows don't use them
+  - name: WORKFLOW_ATTACHMENTS_ENABLED
+    value: "false"
   - name: SERVICE_REGISTRY_URL
     value: "http://service-registry-stateless-svc:5000"
   - name: INTERNAL_PORT
