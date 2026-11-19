@@ -12,6 +12,8 @@ spec:
       restartPolicy: Never
       containers:
         - name: bentoctl-init-auth
+          # TODO: bump to the bentoctl release that creates the ETL client
+          # (bento feat/etl-dev). Older images ignore the BENTO_ETL_* vars below.
           image: ghcr.io/bento-platform/bentoctl:pr-385
           imagePullPolicy: Always
           command: ["python3", "-m", "py_bentoctl.entry", "init-auth"]
@@ -46,6 +48,12 @@ spec:
             # "<client id>-oidc-secret", and Secret names can't hold "_"
             - name: BENTO_PUBLIC_CLIENT_ID
               value: "bento-public"
+            # ETL client (client credentials), only created if ETL is enabled.
+            # bentoctl writes its secret to etl-oidc-secret
+            - name: BENTO_ETL_ENABLED
+              value: "true"
+            - name: BENTO_ETL_CLIENT_ID
+              value: "etl"
             - name: BENTOV2_AUTH_ADMIN_USER
               valueFrom:
                 secretKeyRef:

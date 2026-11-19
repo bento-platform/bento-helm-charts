@@ -1,0 +1,21 @@
+---
+apiVersion: garage.rajsingh.info/v1beta1
+kind: GarageKey
+metadata:
+  name: etl-litestream-creds
+  namespace: default
+spec:
+  clusterRef:
+    name: garage
+  name: "ETL Litestream Key"
+  # Renames the generated Secret's key/value fields to match exactly what the
+  # litestream-svc chart's StatefulSet reads via secretKeyRef.
+  secretTemplate:
+    accessKeyIdKey: LITESTREAM_ACCESS_KEY_ID
+    secretAccessKeyKey: LITESTREAM_SECRET_ACCESS_KEY
+  bucketPermissions:
+    - bucketRef:
+        name: etl-litestream
+      read: true
+      write: true
+      owner: false

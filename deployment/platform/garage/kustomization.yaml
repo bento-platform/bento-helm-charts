@@ -12,5 +12,9 @@ resources:
   - drs-litestream-bucket-key.yaml
   - wes-litestream-bucket.yaml
   - wes-litestream-bucket-key.yaml
+  - etl-bucket.yaml
+  - etl-bucket-key.yaml
+  - etl-litestream-bucket.yaml
+  - etl-litestream-bucket-key.yaml
   - http-route.yaml
   - admin-token-cr.yaml
