@@ -68,7 +68,11 @@ often depend on operators and CRDs that are installed in the `infra` layer.
 
 Finaly, when the `infra` and `platform` layers are fully synced and healthy in ArgoCD, the `services` layer can be deployed.
 
-The `services` layer consists of the Bento core services: Katsu, Beacon, Public, Portal, Authz, WES, DRS, etc.
+The `services` layer consists of the Bento core services: Katsu, Beacon, Public, Portal, Authz, WES, DRS, ETL, etc.
+
+ETL has no gateway route (its job submission is not authenticated yet), so jobs are submitted from inside the
+cluster, e.g. with `kubectl port-forward`. Its OAuth2 client and `etl-oidc-secret` Secret are created by the
+`bentoctl init-auth` Job.
 
 This layer is deployed using an ArgoCD `ApplicationSet` that is configured to turn every file
 match for `deployment/services/*/.argocd-app.yaml` into one `Application` for the Helm chart `stateless-svc`.

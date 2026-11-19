@@ -1,7 +1,7 @@
 ---
 image:
   repository: ghcr.io/bento-platform/bento_authorization_service
-  tag: "0.13.0"
+  tag: "0.14.0"
 
 service:
   port: 5000
@@ -10,7 +10,7 @@ service:
 # ConfigMap below does not roll the pods. Bump this when static_data.json
 # changes. authz only reads the file at startup, so a restart is required.
 podAnnotations:
-  bento.ca/static-data-revision: "1"
+  bento.ca/static-data-revision: "2"
 
 env:
   - name: DATABASE_URI
@@ -24,14 +24,48 @@ env:
   # BENTO_VALIDATE_SSL). The dev CA is trusted through the bundle below.
   - name: BENTO_DEBUG
     value: "False"
+  # TLS verification for calls to the PCGL authorization service (authz >= 0.14)
+  - name: BENTO_VALIDATE_SSL
+    value: "True"
   - name: OPENID_CONFIG_URL
     value: "https://auth.bento.k8s.local/realms/bentov2/.well-known/openid-configuration"
   - name: CORS_ORIGINS
     value: "*"
   - name: SERVICE_URL_BASE_PATH
     value: "https://bento.k8s.local/api/authorization"
+  # Keep "True": with "False", bearer tokens are not decoded, so Bento grants
+  # treat every request as anonymous
   - name: JWT_ACCESS_TOKENS
     value: "True"
+  # Policy engine: "bento" (Bento grants only) or "pcgl" (Bento grants, plus
+  # download:metadata delegated to the PCGL authorization service). See
+  # https://github.com/bento-platform/bento/blob/main/docs/pcgl_authorization.md
+  - name: POLICY_ENGINE
+    value: "bento"
+  # PCGL authorization service connection, required if POLICY_ENGINE is "pcgl".
+  # authz refuses to start if any of these is empty with the "pcgl" engine.
+  # Create the secret first, with Bento's service secret from PCGL authz:
+  #   kubectl create secret generic authz-pcgl-secret -n default \
+  #     --from-literal=secret="<service secret>"
+  # - name: PCGL_AUTHZ_SERVICE_URL
+  #   value: "https://<pcgl-authz-host>"
+  # - name: PCGL_SERVICE_ID
+  #   value: "<service ID>"
+  # - name: PCGL_SERVICE_SECRET
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: authz-pcgl-secret
+  #       key: secret
+  # Optional tuning, shown with their defaults. The action must match Bento's
+  # registration in the PCGL authorization service.
+  # - name: PCGL_AUTHZ_ACTION_ENDPOINT
+  #   value: "/export/study"
+  # - name: PCGL_AUTHZ_ACTION_METHOD
+  #   value: "GET"
+  # - name: PCGL_SERVICE_TOKEN_LIFESPAN
+  #   value: "1500"
+  # - name: PCGL_REQUEST_TIMEOUT
+  #   value: "10"
   # Static grants/groups, mounted from the configMap below
   - name: STATIC_AUTHZ_DATA_PATH
     value: "/etc/bento/static_data.json"
@@ -82,6 +116,16 @@ configMap:
               "delete:reference_material",
               "view:drop_box"
             ]
+          },
+          {
+            "subject": {
+              "iss": "https://auth.bento.k8s.local/realms/bentov2",
+              "client": "etl"
+            },
+            "resource": {"everything": true},
+            "expiry": null,
+            "notes": "Bento ETL: replace datasets (delete, then create) and ingest data into them",
+            "permissions": ["create:dataset", "delete:dataset", "ingest:data"]
           },
           {
             "subject": {

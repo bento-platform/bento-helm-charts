@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/bento-platform/bento_web
-  tag: "8.2.2"
+  tag: "8.2.3"
 
 service:
   port: 80
@@ -43,8 +43,8 @@ assets:
   enabled: true
   image:
     repository: ghcr.io/bento-platform/bento-assets-dev
-    # Pinned to the Bento v28 assets release
-    tag: "28.0.0"
+    # Pinned to the Bento v29 assets release
+    tag: "29.0.0"
     pullPolicy: Always
   service: web
   mountPath: /web/dist/static
